@@ -53,7 +53,7 @@ export const FullMenuModal: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl sm:text-2xl font-black text-neutral-900 tracking-tight">
-                TastyBites Full Restaurant Menu 📖
+                TastyBItes Full Restaurant Menu 📖
               </h2>
               <p className="text-xs text-neutral-500 mt-0.5">
                 Handcrafted with farm fresh ingredients & artisanal love.

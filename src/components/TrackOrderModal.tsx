@@ -457,7 +457,7 @@ export const TrackOrderModal: React.FC = () => {
                     </span>
                   </div>
                   <p className="text-[11px] text-neutral-600 mt-0.5">
-                    Your order has been handed over to TastyBites delivery partner on EV Express.
+                    Your order has been handed over to TastyBItes delivery partner on EV Express.
                   </p>
                 </div>
               </div>

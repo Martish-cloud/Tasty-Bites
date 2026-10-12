@@ -35,7 +35,7 @@ export const Footer: React.FC = () => {
           <div className="lg:col-span-4 flex flex-col space-y-4">
             <Logo size="md" onClick={() => navigateTo('home')} />
             <p className="text-xs text-neutral-400 leading-relaxed max-w-sm">
-              TastyBites is your go-to destination for delicious food, made with love and the freshest ingredients. Because good food brings people together. ❤️
+              TastyBItes is your go-to destination for delicious food, made with love and the freshest ingredients. ❤️
             </p>
           </div>
 
@@ -281,7 +281,7 @@ export const Footer: React.FC = () => {
 
         {/* Bottom Bar: Copyright and credits */}
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-neutral-500">
-          <p>© 2024 TastyBites. All rights reserved.</p>
+          <p>© 2024 TastyBItes. All rights reserved.</p>
           <div className="flex items-center gap-1.5">
             <span>Made with</span>
             <span className="text-red-500 text-sm animate-pulse">❤️</span>

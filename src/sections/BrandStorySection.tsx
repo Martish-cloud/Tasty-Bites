@@ -29,7 +29,7 @@ export const BrandStorySection: React.FC = () => {
             </h2>
 
             <p className="text-neutral-300 text-sm sm:text-base leading-relaxed max-w-xl">
-              At TastyBites, food is not merely sustenance — it is a joyful celebration of ingredients, heritage, and human connection. We believe every bite should taste as good as a meal prepared in an award-winning boutique kitchen.
+              At TastyBItes, food is not merely sustenance — it is a joyful celebration of ingredients, heritage, and human connection. We believe every bite should taste as good as a meal prepared in an award-winning boutique kitchen.
             </p>
 
             <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed max-w-xl">
