@@ -40,10 +40,10 @@ export const Navbar: React.FC = () => {
       },
     },
     {
-      name: 'About',
+      name: 'Story',
       action: () => {
-        setActiveTab('About');
-        const el = document.getElementById('service-benefits');
+        setActiveTab('Story');
+        const el = document.getElementById('brand-story');
         if (el) el.scrollIntoView({ behavior: 'smooth' });
       },
     },
@@ -55,10 +55,10 @@ export const Navbar: React.FC = () => {
       },
     },
     {
-      name: 'Blog',
+      name: 'FAQ',
       action: () => {
-        setActiveTab('Blog');
-        const el = document.getElementById('footer');
+        setActiveTab('FAQ');
+        const el = document.getElementById('faq');
         if (el) el.scrollIntoView({ behavior: 'smooth' });
       },
     },

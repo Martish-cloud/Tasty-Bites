@@ -144,7 +144,7 @@ export const HeroSection: React.FC = () => {
                     <span className="text-white font-bold text-xs">Chef&apos;s Signature</span>
                     <span className="text-amber-400 text-xs font-semibold">4.9 ★</span>
                   </div>
-                  <span className="text-neutral-400 text-[10px]">Over 50,000+ happy bites</span>
+                  <span className="text-neutral-400 text-[10px]">Over 7,000 satisfied foodies</span>
                 </div>
               </div>
             </div>

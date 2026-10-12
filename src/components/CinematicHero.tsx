@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { ArrowRight, Play, Star, ChevronDown, Sparkles, Film } from 'lucide-react';
+import { ArrowRight, Play, Star, ChevronDown, Sparkles } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 const TOTAL_FRAMES = 160;
@@ -15,8 +15,6 @@ export const CinematicHero: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const [currentFrame, setCurrentFrame] = useState(0);
-  const [loadedCount, setLoadedCount] = useState(0);
   const [isReducedMotion, setIsReducedMotion] = useState(false);
 
   // In-memory cache of HTMLImageElements
@@ -89,7 +87,6 @@ export const CinematicHero: React.FC = () => {
         img.src = getFrameSrc(index);
         img.onload = () => {
           imagesRef.current.set(index, img);
-          setLoadedCount((prev) => prev + 1);
           resolve(img);
         };
         img.onerror = () => {
@@ -164,8 +161,6 @@ export const CinematicHero: React.FC = () => {
         const progress = Math.max(0, Math.min(1, -rect.top / totalScrollable));
         const targetFrameIndex = Math.min(TOTAL_FRAMES - 1, Math.floor(progress * TOTAL_FRAMES));
 
-        setCurrentFrame(targetFrameIndex);
-
         if (targetFrameIndex !== lastDrawnFrameRef.current) {
           // Get image from cache or find closest available loaded frame
           let imgToDraw = imagesRef.current.get(targetFrameIndex);
@@ -217,8 +212,6 @@ export const CinematicHero: React.FC = () => {
     }
   };
 
-  const progressPercent = Math.round(((currentFrame + 1) / TOTAL_FRAMES) * 100);
-
   return (
     <section
       ref={containerRef}
@@ -259,8 +252,8 @@ export const CinematicHero: React.FC = () => {
                 </span>
 
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-neutral-900/60 border border-neutral-700/60 text-neutral-300 text-[10.5px] font-medium backdrop-blur-md">
-                  <Film className="w-3 h-3 text-red-400" />
-                  160-Frame Cinematic Journey
+                  <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
+                  Artisanal Food Experience
                 </span>
               </div>
 
@@ -352,39 +345,13 @@ export const CinematicHero: React.FC = () => {
                         4.9 ★
                       </span>
                     </div>
-                    <span className="text-neutral-400 text-xs">Over 50,000+ satisfied foodies</span>
+                    <span className="text-neutral-400 text-xs">Over 7,000 satisfied foodies</span>
                   </div>
                 </div>
                 <p className="text-neutral-300 text-xs leading-relaxed">
                   Every dish is cooked fresh to order with artisanal sauces, premium cuts, and farm-picked vegetables.
                 </p>
               </div>
-
-              {/* Scroll Driven Frame Counter / Live Progress Meter */}
-              {!isReducedMotion && (
-                <div className="bg-black/80 backdrop-blur-md border border-neutral-800 px-4 py-2.5 rounded-xl shadow-xl flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-neutral-900 border border-amber-500/30 flex items-center justify-center text-xs font-mono text-amber-400 font-bold">
-                    {progressPercent}%
-                  </div>
-                  <div className="text-left">
-                    <div className="text-[11px] font-bold text-neutral-200 flex items-center gap-1">
-                      <span>Cinematic Frame {currentFrame + 1} of 160</span>
-                      {loadedCount < TOTAL_FRAMES && (
-                        <span className="text-[9px] text-amber-400/80 animate-pulse">
-                          (Buffering {loadedCount})
-                        </span>
-                      )}
-                    </div>
-                    {/* Micro Progress Bar */}
-                    <div className="w-36 h-1.5 bg-neutral-800 rounded-full overflow-hidden mt-1">
-                      <div
-                        className="h-full bg-gradient-to-r from-amber-500 to-red-500 transition-all duration-75"
-                        style={{ width: `${progressPercent}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -394,7 +361,7 @@ export const CinematicHero: React.FC = () => {
           <div className="w-full relative z-10 pb-4 sm:pb-6 flex flex-col items-center justify-center pointer-events-none">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/60 border border-neutral-800/80 text-neutral-300 text-xs font-medium backdrop-blur-md shadow-md animate-bounce">
               <ChevronDown className="w-3.5 h-3.5 text-amber-400" />
-              <span>Scroll down to play the 160-frame culinary story</span>
+              <span>Scroll to explore our culinary story</span>
               <ChevronDown className="w-3.5 h-3.5 text-amber-400" />
             </div>
           </div>

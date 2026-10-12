@@ -9,7 +9,6 @@ export const TopBar: React.FC = () => {
     setIsOffersModalOpen,
     setIsTrackOrderOpen,
     setIsAuthModalOpen,
-    setIsAdminOpen,
     showToast,
   } = useApp();
 
@@ -90,17 +89,6 @@ export const TopBar: React.FC = () => {
           </button>
 
           <span className="text-neutral-700 hidden sm:inline">|</span>
-
-          {/* Staff Admin Portal */}
-          <button
-            onClick={() => setIsAdminOpen(true)}
-            className="flex items-center gap-1 text-amber-500/90 hover:text-amber-400 transition font-mono text-[11px] cursor-pointer"
-            title="Staff Admin Portal (PIN: 1234)"
-          >
-            <span>🔐 Admin</span>
-          </button>
-
-          <span className="text-neutral-700">|</span>
 
           {/* Sign In */}
           <button

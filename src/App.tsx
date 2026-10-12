@@ -6,7 +6,10 @@ import { CinematicHero } from './components/CinematicHero';
 import { Section1VideoShowcase } from './components/Section1VideoShowcase';
 import { CategoryBar } from './sections/CategoryBar';
 import { PopularDishes } from './sections/PopularDishes';
+import { AnimatedFoodShowcase } from './components/AnimatedFoodShowcase';
+import { BrandStorySection } from './sections/BrandStorySection';
 import { ServiceBenefits } from './sections/ServiceBenefits';
+import { FAQSection } from './sections/FAQSection';
 import { Footer } from './sections/Footer';
 import { CartDrawer } from './components/CartDrawer';
 import { WishlistDrawer } from './components/WishlistDrawer';
@@ -36,17 +39,26 @@ export function AppContent() {
         <CinematicHero />
         <Section1VideoShowcase />
 
-        {/* 4 & 5 & 6. Category Strip & Promo Banner Card */}
+        {/* 4 & 5. Category Strip & Promo Banner Card */}
         <CategoryBar />
 
-        {/* 7 & 8. Popular Dishes & 50% Off Promo Card */}
+        {/* 6. Popular Dishes (Compact Cards) */}
         <PopularDishes />
+
+        {/* 7. Four Animated Food-Product Rows (32 unique items, alternating directions) */}
+        <AnimatedFoodShowcase />
+
+        {/* 8. Brand Story & Master Kitchen Standards */}
+        <BrandStorySection />
 
         {/* 9. Trust & Service Benefits Strip */}
         <ServiceBenefits />
+
+        {/* 10. Frequently Asked Questions (FAQ Accordion) */}
+        <FAQSection />
       </main>
 
-      {/* 10. Dark Luxury Footer */}
+      {/* 11. Dark Luxury Footer */}
       <Footer />
 
       {/* Interactive Drawers & Modals */}

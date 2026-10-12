@@ -118,8 +118,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     const handleHash = () => {
       const hash = window.location.hash.toLowerCase();
-      const path = window.location.pathname.toLowerCase();
-      if (hash === '#admin' || path === '/admin') {
+      if (hash === '#staff-portal') {
         setIsAdminOpen(true);
       }
       if (hash === '#track-order' || hash === '#track') {

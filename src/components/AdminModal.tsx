@@ -109,12 +109,6 @@ export const AdminModal: React.FC<AdminModalProps> = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleQuickDemoUnlock = () => {
-    setIsAuthenticated(true);
-    setPinError(false);
-    showToast('Demo Admin PIN verified (1234)!', 'success');
-  };
-
   // Status transition handler
   const handleUpdateStatus = (orderId: string, newStatus: OrderStatus, note?: string) => {
     const res = updateDBOrderStatus(orderId, newStatus, note, 'Staff Admin');
@@ -290,14 +284,14 @@ export const AdminModal: React.FC<AdminModalProps> = ({ isOpen, onClose }) => {
                       setPinInput(e.target.value);
                       setPinError(false);
                     }}
-                    placeholder="Enter PIN (Default: 1234)"
+                    placeholder="Enter Authorized PIN"
                     className="w-full text-center tracking-widest text-lg font-mono py-3 px-4 bg-neutral-950 border border-neutral-700 rounded-xl text-white focus:outline-none focus:border-amber-500"
                     autoFocus
                   />
                   {pinError && (
                     <p className="text-[11px] text-red-400 mt-1.5 flex items-center justify-center gap-1">
                       <AlertCircle className="w-3 h-3" />
-                      <span>Incorrect PIN. Try PIN 1234.</span>
+                      <span>Invalid security PIN. Access denied.</span>
                     </p>
                   )}
                 </div>
@@ -309,15 +303,6 @@ export const AdminModal: React.FC<AdminModalProps> = ({ isOpen, onClose }) => {
                   Verify Access
                 </button>
               </form>
-
-              <div className="pt-2 border-t border-neutral-800/80">
-                <button
-                  onClick={handleQuickDemoUnlock}
-                  className="text-xs text-amber-400 hover:text-amber-300 font-semibold cursor-pointer underline"
-                >
-                  Quick Unlock (Demo PIN: 1234)
-                </button>
-              </div>
             </div>
           </div>
         ) : (

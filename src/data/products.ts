@@ -375,6 +375,282 @@ export const PRODUCTS: Product[] = [
     serves: '400 ml',
     ingredients: ['Passion Fruit Puree', 'Fresh Spearmint', 'Sparkling Water', 'Lime', 'Rock Salt'],
   },
+
+  // 18. Truffle Mushroom Swiss Burger
+  {
+    id: 'truffle-mushroom-burger',
+    name: 'Truffle Mushroom Swiss Burger',
+    category: 'burgers',
+    price: 229,
+    originalPrice: 279,
+    rating: 4.9,
+    reviews: '1.7k',
+    deliveryTime: '20 mins',
+    image: 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=800&q=80',
+    description: 'Sautéed forest portobello mushrooms, black truffle aioli, melted Swiss emmental, and caramelized onions on glazed brioche.',
+    popular: true,
+    isVeg: true,
+    calories: 520,
+    serves: '1 Person',
+    badge: 'Chef Special',
+  },
+
+  // 19. Crispy Spicy Paneer Burger
+  {
+    id: 'crispy-paneer-burger',
+    name: 'Crispy Spicy Paneer Burger',
+    category: 'burgers',
+    price: 169,
+    originalPrice: 199,
+    rating: 4.7,
+    reviews: '2.4k',
+    deliveryTime: '20 mins',
+    image: 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=800&q=80',
+    description: 'Golden spiced paneer steak crumbed with panko crunch, shredded coleslaw, chipotle mayo, and pickled jalapeños.',
+    popular: false,
+    isVeg: true,
+    calories: 490,
+    serves: '1 Person',
+  },
+
+  // 20. Farmhouse Supreme Pizza
+  {
+    id: 'farmhouse-supreme-pizza',
+    name: 'Farmhouse Supreme Pizza',
+    category: 'pizza',
+    price: 329,
+    originalPrice: 389,
+    rating: 4.8,
+    reviews: '3.1k',
+    deliveryTime: '25 mins',
+    image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=800&q=80',
+    description: 'Wood-fired sourdough topped with smoked bell peppers, sweet corn, black olives, red onions, mushrooms, and double mozzarella.',
+    popular: true,
+    isVeg: true,
+    calories: 710,
+    serves: '2-3 People',
+    badge: 'Farm Fresh',
+  },
+
+  // 21. Smoky BBQ Chicken Pizza
+  {
+    id: 'smoky-bbq-chicken-pizza',
+    name: 'Smoky BBQ Chicken Pizza',
+    category: 'pizza',
+    price: 369,
+    originalPrice: 429,
+    rating: 4.9,
+    reviews: '2.8k',
+    deliveryTime: '25 mins',
+    image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80',
+    description: 'Slow-smoked hickory chicken shreds, tangy Kansas BBQ glaze, red onions, cilantro, and bubbly smoked provolone.',
+    popular: false,
+    isVeg: false,
+    calories: 740,
+    serves: '2-3 People',
+  },
+
+  // 22. Hyderabadi Dum Chicken Biryani
+  {
+    id: 'chicken-dum-biryani',
+    name: 'Royal Chicken Dum Biryani',
+    category: 'indian',
+    price: 329,
+    originalPrice: 399,
+    rating: 4.9,
+    reviews: '4.6k',
+    deliveryTime: '30 mins',
+    image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=800&q=80',
+    description: 'Kachi yakhni marinated chicken layered with long-grain aged basmati, saffron milk, fried onions, and slow-dum in sealed clay pots.',
+    popular: true,
+    isVeg: false,
+    calories: 680,
+    serves: '1-2 People',
+    badge: 'Royal Dum',
+  },
+
+  // 23. Dal Makhani & Butter Naan
+  {
+    id: 'dal-makhani-combo',
+    name: 'Slow Simmered Dal Makhani',
+    category: 'indian',
+    price: 259,
+    originalPrice: 299,
+    rating: 4.8,
+    reviews: '1.9k',
+    deliveryTime: '25 mins',
+    image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=800&q=80',
+    description: 'Whole black lentils slow-simmered over charcoal for 24 hours with white butter, fresh dairy cream, and roasted fenugreek.',
+    popular: false,
+    isVeg: true,
+    calories: 510,
+    serves: '1-2 People',
+  },
+
+  // 24. Black Truffle Tagliatelle
+  {
+    id: 'truffle-tagliatelle',
+    name: 'Black Truffle Tagliatelle',
+    category: 'continental',
+    price: 319,
+    originalPrice: 379,
+    rating: 4.8,
+    reviews: '890',
+    deliveryTime: '25 mins',
+    image: 'https://images.unsplash.com/photo-1621996346565-e3d5d6281728?auto=format&fit=crop&w=800&q=80',
+    description: 'Hand-rolled artisanal egg tagliatelle tossed in Umbrian black truffle butter, roasted wild mushrooms, and 24-month Grana Padano.',
+    popular: false,
+    isVeg: true,
+    calories: 560,
+    serves: '1 Person',
+    badge: 'Artisanal',
+  },
+
+  // 25. Flaming Schezwan Fried Rice
+  {
+    id: 'schezwan-fried-rice',
+    name: 'Wok Schezwan Fried Rice',
+    category: 'chinese',
+    price: 199,
+    originalPrice: 239,
+    rating: 4.7,
+    reviews: '1.6k',
+    deliveryTime: '20 mins',
+    image: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=800&q=80',
+    description: 'High-heat wok tossed jasmine rice with garlic chilli Schezwan oil, spring greens, baby corn, and toasted sesame.',
+    popular: false,
+    isVeg: true,
+    calories: 480,
+    serves: '1-2 People',
+  },
+
+  // 26. Crystal Steamed Dim Sums
+  {
+    id: 'steamed-dim-sums',
+    name: 'Artisanal Steamed Dim Sums',
+    category: 'chinese',
+    price: 219,
+    originalPrice: 269,
+    rating: 4.8,
+    reviews: '1.2k',
+    deliveryTime: '20 mins',
+    image: 'https://images.unsplash.com/photo-1496116218417-1a781b1c416c?auto=format&fit=crop&w=800&q=80',
+    description: 'Translucent steamed parcels stuffed with water chestnuts, shiitake mushrooms, and bok choy, served with scallion dip.',
+    popular: false,
+    isVeg: true,
+    calories: 310,
+    serves: '6 Pieces',
+  },
+
+  // 27. Crisp Chicken Caesar Salad
+  {
+    id: 'chicken-caesar-salad',
+    name: 'Charred Chicken Caesar Bowl',
+    category: 'salads',
+    price: 249,
+    originalPrice: 299,
+    rating: 4.7,
+    reviews: '950',
+    deliveryTime: '15 mins',
+    image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80',
+    description: 'Crisp romaine lettuce hearts, grilled herbed chicken tenders, garlic sourdough croutons, shaved parmesan, and creamy dressing.',
+    popular: false,
+    isVeg: false,
+    calories: 380,
+    serves: '1 Person',
+  },
+
+  // 28. Golden Spanish Churros
+  {
+    id: 'churros-con-chocolate',
+    name: 'Golden Spanish Churros',
+    category: 'desserts',
+    price: 189,
+    originalPrice: 229,
+    rating: 4.9,
+    reviews: '2.1k',
+    deliveryTime: '15 mins',
+    image: 'https://images.unsplash.com/photo-1624353365286-3f8d62daad51?auto=format&fit=crop&w=800&q=80',
+    description: 'Crisp fried cinnamon-sugar dredged pastry fingers accompanied by a rich dip of 70% warm molten dark chocolate.',
+    popular: true,
+    isVeg: true,
+    calories: 430,
+    serves: '4 Pieces',
+    badge: 'Crowd Favorite',
+  },
+
+  // 29. Italian Espresso Tiramisu
+  {
+    id: 'tiramisu-classico',
+    name: 'Classic Espresso Tiramisu',
+    category: 'desserts',
+    price: 239,
+    originalPrice: 289,
+    rating: 4.9,
+    reviews: '1.8k',
+    deliveryTime: '15 mins',
+    image: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&w=800&q=80',
+    description: 'Savoiardi ladyfingers steeped in dark espresso and marsala, enveloped in whipped mascarpone custard and dusted with cocoa.',
+    popular: false,
+    isVeg: true,
+    calories: 390,
+    serves: '1 Cup',
+  },
+
+  // 30. Alphonso Mango Velvet Smoothie
+  {
+    id: 'mango-velvet-smoothie',
+    name: 'Alphonso Mango Velvet Smoothie',
+    category: 'beverages',
+    price: 159,
+    originalPrice: 189,
+    rating: 4.9,
+    reviews: '2.7k',
+    deliveryTime: '15 mins',
+    image: 'https://images.unsplash.com/photo-1546173159-315724a31696?auto=format&fit=crop&w=800&q=80',
+    description: 'Chilled Ratnagiri Alphonso mango nectar blended with creamy Greek yogurt, wildflower honey, and crushed pistachios.',
+    popular: true,
+    isVeg: true,
+    calories: 210,
+    serves: '380 ml',
+    badge: 'Seasonal Best',
+  },
+
+  // 31. Wild Berry Hibiscus Iced Brew
+  {
+    id: 'berry-hibiscus-brew',
+    name: 'Wild Berry Hibiscus Brew',
+    category: 'beverages',
+    price: 139,
+    originalPrice: 169,
+    rating: 4.8,
+    reviews: '1.1k',
+    deliveryTime: '15 mins',
+    image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=800&q=80',
+    description: 'Cold-steeped organic ruby hibiscus blossoms infused with crushed raspberries, fresh mint, and sparkling tonic water.',
+    popular: false,
+    isVeg: true,
+    calories: 90,
+    serves: '400 ml',
+  },
+
+  // 32. Tandoori Soya Chaap Tikka
+  {
+    id: 'tandoori-soya-chaap',
+    name: 'Tandoori Soya Chaap Tikka',
+    category: 'indian',
+    price: 239,
+    originalPrice: 279,
+    rating: 4.7,
+    reviews: '1.4k',
+    deliveryTime: '25 mins',
+    image: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?auto=format&fit=crop&w=800&q=80',
+    description: 'Juicy soya chaap skewers marinated in hung curd, yellow mustard, and Kashmiri deghi mirch, charred over charcoal.',
+    popular: false,
+    isVeg: true,
+    calories: 420,
+    serves: '1-2 People',
+  },
 ];
 
 export const PROMO_CODES: PromoCode[] = [
@@ -398,14 +674,98 @@ export const PROMO_CODES: PromoCode[] = [
   },
 ];
 
-export const DELIVERY_LOCATIONS = [
-  { city: 'Bengaluru', pincode: '560001', area: 'MG Road, Indiranagar, Koramangala' },
-  { city: 'Bengaluru', pincode: '560034', area: 'Koramangala 4th Block' },
-  { city: 'Bengaluru', pincode: '560038', area: 'Indiranagar 100ft Road' },
-  { city: 'Mumbai', pincode: '400001', area: 'Colaba, Fort & Marine Drive' },
-  { city: 'Mumbai', pincode: '400050', area: 'Bandra West, Linking Road' },
-  { city: 'Delhi NCR', pincode: '110001', area: 'Connaught Place & Central' },
-  { city: 'Hyderabad', pincode: '500081', area: 'Hitec City & Gachibowli' },
-  { city: 'Pune', pincode: '411001', area: 'Camp & Koregaon Park' },
-  { city: 'Chennai', pincode: '600001', area: 'George Town & Marina' },
+export interface DeliveryLocationOption {
+  city: string;
+  pincode?: string;
+  area: string;
+  isRegion?: boolean;
+  supportedCities?: { city: string; pincode: string; area: string }[];
+}
+
+export const POPULAR_LOCATIONS: DeliveryLocationOption[] = [
+  { city: 'Bengaluru', pincode: '560001', area: 'Central, Indiranagar & Koramangala' },
+  { city: 'Mumbai', pincode: '400001', area: 'Colaba, Fort & Bandra West' },
+  { city: 'Delhi NCR', pincode: '110001', area: 'Connaught Place, South Ext & Gurgaon' },
+  { city: 'Pune', pincode: '411001', area: 'Camp, Koregaon Park & Viman Nagar' },
+  {
+    city: 'Punjab',
+    area: 'Region — Select supported city & PIN',
+    isRegion: true,
+    supportedCities: [
+      { city: 'Chandigarh', pincode: '160017', area: 'Sector 17, 35 & IT Park' },
+      { city: 'Ludhiana', pincode: '141001', area: 'Model Town & Sarabha Nagar' },
+      { city: 'Amritsar', pincode: '143001', area: 'Ranjit Avenue & Mall Road' },
+      { city: 'Jalandhar', pincode: '144001', area: 'Model Town & Cantt' },
+    ],
+  },
+  { city: 'Kolkata', pincode: '700001', area: 'Park Street, Salt Lake & New Town' },
 ];
+
+export const DELIVERY_LOCATIONS = POPULAR_LOCATIONS;
+
+/**
+ * Validates delivery serviceability for a given city and PIN code.
+ */
+export const checkDeliveryServiceability = (
+  cityInput: string,
+  pincodeInput: string
+): { serviceable: boolean; invalidFormat?: boolean; message: string; city: string; pincode: string } => {
+  const city = cityInput.trim();
+  const pincode = pincodeInput.trim();
+
+  if (!city) {
+    return {
+      serviceable: false,
+      invalidFormat: true,
+      message: 'Please enter a valid city name.',
+      city,
+      pincode,
+    };
+  }
+
+  // 6-digit Indian PIN code format
+  const pinRegex = /^[1-9][0-9]{5}$/;
+  if (!pinRegex.test(pincode)) {
+    return {
+      serviceable: false,
+      invalidFormat: true,
+      message: 'Please enter a valid 6-digit Indian PIN code (e.g. 560001).',
+      city,
+      pincode,
+    };
+  }
+
+  // Check supported zones
+  const prefix3 = pincode.substring(0, 3);
+  const cityLower = city.toLowerCase();
+
+  const isBengaluru = (prefix3 === '560') || cityLower.includes('bengaluru') || cityLower.includes('bangalore');
+  const isMumbai = (prefix3 === '400') || cityLower.includes('mumbai') || cityLower.includes('thane');
+  const isDelhi = (prefix3 === '110' || prefix3 === '122' || prefix3 === '201') || cityLower.includes('delhi') || cityLower.includes('ncr') || cityLower.includes('gurgaon') || cityLower.includes('noida');
+  const isPune = (prefix3 === '411') || cityLower.includes('pune');
+  const isKolkata = (prefix3 === '700') || cityLower.includes('kolkata') || cityLower.includes('calcutta');
+  const isPunjab = (['160', '141', '143', '144', '140', '147'].includes(prefix3)) ||
+    cityLower.includes('punjab') ||
+    cityLower.includes('chandigarh') ||
+    cityLower.includes('ludhiana') ||
+    cityLower.includes('amritsar') ||
+    cityLower.includes('jalandhar') ||
+    cityLower.includes('mohali') ||
+    cityLower.includes('patiala');
+
+  if (isBengaluru || isMumbai || isDelhi || isPune || isKolkata || isPunjab) {
+    return {
+      serviceable: true,
+      message: 'Great news! Delivery is available at your location.',
+      city: city.charAt(0).toUpperCase() + city.slice(1),
+      pincode,
+    };
+  }
+
+  return {
+    serviceable: false,
+    message: 'Sorry, delivery is not currently available at this location. We currently deliver in Bengaluru, Mumbai, Delhi NCR, Pune, Punjab (Chandigarh, Ludhiana, Amritsar, Jalandhar), and Kolkata.',
+    city,
+    pincode,
+  };
+};
