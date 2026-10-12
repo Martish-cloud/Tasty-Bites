@@ -160,7 +160,7 @@ const INITIAL_ORDERS: Order[] = [
       {
         status: 'out_for_delivery',
         timestamp: new Date(Date.now() - 8 * 60000).toISOString(),
-        note: 'Rider Rahul Verma (+91 98450 11223) picked up order on EV Bike.',
+        note: 'TastyBites Partner (+91 98450 11223) picked up order on EV Bike.',
         updatedBy: 'Dispatch System',
       },
     ],
@@ -423,9 +423,9 @@ export function createDBOrder(params: CreateOrderParams): { success: boolean; or
     estimatedDeliveryMinutes: 25,
     isDemoOrder: isDemo,
     riderInfo: {
-      name: 'Rahul Verma (Demo Partner)',
+      name: 'TastyBites Partner',
       phone: '+91 98000 00000',
-      rating: '4.9',
+      rating: '4.3',
       vehicle: 'Eco EV Express • Hot Thermal Bag',
     },
     statusHistory: [
@@ -652,7 +652,7 @@ export const INITIAL_REVIEWS: Review[] = [
   {
     id: 'rev-sample-3',
     name: 'Ananya Sen',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
+    avatar: '/Images/ananya-avatar.jpg',
     rating: 4,
     comment: 'Authentic Neapolitan Margherita Pizza. Loved the fresh basil and Fior di Latte mozzarella. Crust had lovely wood-fired leopard spots. Will definitely order again!',
     date: '5 days ago',
@@ -697,7 +697,20 @@ export const INITIAL_REVIEWS: Review[] = [
 ];
 
 export function getDBReviews(): Review[] {
-  return loadFromStorage<Review[]>(REVIEWS_KEY, INITIAL_REVIEWS);
+  const loaded = loadFromStorage<Review[]>(REVIEWS_KEY, INITIAL_REVIEWS);
+  let hasChange = false;
+  const updated = loaded.map((r) => {
+    if ((r.id === 'rev-sample-3' || r.name === 'Ananya Sen') && r.avatar !== '/Images/ananya-avatar.jpg') {
+      hasChange = true;
+      return { ...r, avatar: '/Images/ananya-avatar.jpg' };
+    }
+    return r;
+  });
+  if (hasChange) {
+    saveToStorage(REVIEWS_KEY, updated);
+    return updated;
+  }
+  return loaded;
 }
 
 export function createDBReview(params: CreateReviewParams): { success: boolean; review?: Review; error?: string } {
@@ -730,7 +743,7 @@ export function createDBReview(params: CreateReviewParams): { success: boolean; 
     'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80',
     'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=120&q=80',
     'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=120&q=80',
-    'https://images.unsplash.com/photo-1628157582853-a796fa650a6a?auto=format&fit=crop&w=120&q=80',
+    '/Images/ananya-avatar.jpg',
   ];
   const chosenAvatar = params.avatar || defaultAvatars[Math.floor(Math.random() * defaultAvatars.length)];
 

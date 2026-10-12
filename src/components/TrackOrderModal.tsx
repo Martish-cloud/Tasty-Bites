@@ -457,7 +457,7 @@ export const TrackOrderModal: React.FC = () => {
                     </span>
                   </div>
                   <p className="text-[11px] text-neutral-600 mt-0.5">
-                    Your order has been handed over to the simulated delivery partner Rahul Verma on EV Express.
+                    Your order has been handed over to TastyBites delivery partner on EV Express.
                   </p>
                 </div>
               </div>
@@ -517,34 +517,26 @@ export const TrackOrderModal: React.FC = () => {
                     <span className="text-[10.5px] text-neutral-500 block">
                       {DEMO_RIDER_INFO.vehicle}
                     </span>
-                    <span className="text-[10px] text-amber-700 font-medium">
-                      Phone: {DEMO_RIDER_INFO.phone} ({DEMO_RIDER_INFO.phoneLabel})
+                    <span className="text-[10px] text-neutral-500 font-medium">
+                      Phone: {DEMO_RIDER_INFO.phone}
                     </span>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() =>
-                      showToast(
-                        `Simulated Call: Connecting to demo partner Rahul Verma (${DEMO_RIDER_INFO.phone})...`,
-                        'info'
-                      )
-                    }
-                    className="p-2 rounded-xl bg-white border border-neutral-200 text-neutral-700 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-300 transition cursor-pointer shadow-xs"
-                    title="Simulate Call Partner"
+                    type="button"
+                    onClick={(e) => e.preventDefault()}
+                    className="p-2 rounded-xl bg-white border border-neutral-200 text-neutral-400 cursor-default shadow-xs"
+                    aria-label="Call Partner"
                   >
                     <Phone className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() =>
-                      showToast(
-                        `Simulated Chat: "Rahul is arriving at your gate shortly with insulated food."`,
-                        'info'
-                      )
-                    }
-                    className="p-2 rounded-xl bg-white border border-neutral-200 text-neutral-700 hover:bg-amber-50 hover:text-amber-600 hover:border-amber-300 transition cursor-pointer shadow-xs"
-                    title="Simulate Rider Chat"
+                    type="button"
+                    onClick={(e) => e.preventDefault()}
+                    className="p-2 rounded-xl bg-white border border-neutral-200 text-neutral-400 cursor-default shadow-xs"
+                    aria-label="Message Partner"
                   >
                     <MessageSquare className="w-4 h-4" />
                   </button>

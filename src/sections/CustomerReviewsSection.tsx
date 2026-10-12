@@ -96,19 +96,15 @@ export const CustomerReviewsSection: React.FC<CustomerReviewsSectionProps> = ({
                         {rev.name}
                       </h4>
                       <div className="flex items-center gap-1 mt-0.5">
-                        {rev.isVerifiedPurchase ? (
+                        {rev.isVerifiedPurchase && (
                           <span className="inline-flex items-center gap-0.5 text-[9.5px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded">
                             <ShieldCheck className="w-2.5 h-2.5 text-emerald-600" />
                             Verified
                           </span>
-                        ) : rev.isSample ? (
-                          <span className="text-[9.5px] font-medium text-amber-800 bg-amber-50 px-1.5 py-0.2 rounded">
-                            Demo Review
-                          </span>
-                        ) : (
-                          <span className="text-[9.5px] text-neutral-400">Customer</span>
                         )}
-                        <span className="text-[10px] text-neutral-400">• {rev.date}</span>
+                        <span className="text-[10px] text-neutral-400">
+                          {rev.isVerifiedPurchase ? '• ' : ''}{rev.date}
+                        </span>
                       </div>
                     </div>
                   </div>

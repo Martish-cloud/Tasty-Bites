@@ -14,12 +14,12 @@ export const DEMO_TRACKING_CONFIG = {
 };
 
 export const DEMO_RIDER_INFO = {
-  name: 'Rahul Verma (Demo Partner)',
-  rating: '★ 4.9',
+  name: 'TastyBites Partner',
+  role: 'Partner',
+  rating: '★ 4.3',
   deliveries: '1,420+ completed',
   vehicle: 'Eco EV Express • Thermal Insulated Bag',
   phone: '+91 98000 00000',
-  phoneLabel: 'Simulated Demo Phone • Non-callable',
 };
 
 export interface ComputedTrackingState {
@@ -78,7 +78,7 @@ export function computeTrackingState(createdAt: string): ComputedTrackingState {
       status: 'out_for_delivery',
       stageIndex: 3,
       stageName: 'Delivery Partner Assigned • Out for Delivery',
-      stageDescription: 'Simulated courier Rahul Verma has collected the insulated thermal bag.',
+      stageDescription: 'TastyBites delivery partner has collected the insulated thermal bag.',
       elapsedSeconds,
       secondsRemainingInStage: t4 - elapsedSeconds,
       isDelivered: false,
