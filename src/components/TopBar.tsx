@@ -7,8 +7,10 @@ export const TopBar: React.FC = () => {
     location,
     setIsLocationModalOpen,
     setIsOffersModalOpen,
-    setIsTrackOrderOpen,
+    openOrderTracking,
     setIsAuthModalOpen,
+    currentUser,
+    logout,
     showToast,
   } = useApp();
 
@@ -70,10 +72,10 @@ export const TopBar: React.FC = () => {
 
           {/* Track Order */}
           <button
-            onClick={() => setIsTrackOrderOpen(true)}
-            className="flex items-center gap-1 hover:text-white transition cursor-pointer"
+            onClick={() => openOrderTracking()}
+            className="flex items-center gap-1 hover:text-amber-400 text-neutral-300 transition cursor-pointer"
           >
-            <Compass className="w-3.5 h-3.5 text-neutral-400" />
+            <Compass className="w-3.5 h-3.5 text-amber-500" />
             <span>Track Order</span>
           </button>
 
@@ -90,14 +92,36 @@ export const TopBar: React.FC = () => {
 
           <span className="text-neutral-700 hidden sm:inline">|</span>
 
-          {/* Sign In */}
-          <button
-            onClick={() => setIsAuthModalOpen(true)}
-            className="flex items-center gap-1 text-neutral-200 hover:text-amber-400 transition font-medium cursor-pointer"
-          >
-            <User className="w-3.5 h-3.5 text-neutral-400" />
-            <span>Sign In</span>
-          </button>
+          {/* Customer Authentication */}
+          {currentUser ? (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => openOrderTracking()}
+                className="flex items-center gap-1 text-amber-400 hover:text-amber-300 transition font-medium cursor-pointer"
+                title={`Signed in as ${currentUser.name} (${currentUser.phone})`}
+              >
+                <User className="w-3.5 h-3.5 text-amber-400" />
+                <span className="max-w-28 truncate">{currentUser.name ? currentUser.name.split(' ')[0] : currentUser.phone}</span>
+              </button>
+              <button
+                onClick={() => {
+                  logout();
+                  showToast('Signed out of session.', 'info');
+                }}
+                className="text-neutral-500 hover:text-neutral-300 text-[10px] underline ml-0.5 cursor-pointer"
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setIsAuthModalOpen(true)}
+              className="flex items-center gap-1 text-neutral-200 hover:text-amber-400 transition font-medium cursor-pointer"
+            >
+              <User className="w-3.5 h-3.5 text-neutral-400" />
+              <span>Sign In</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

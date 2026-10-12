@@ -36,6 +36,9 @@ interface AppContextType {
   isMenuModalOpen: boolean;
   isVideoModalOpen: boolean;
   isTrackOrderOpen: boolean;
+  trackingOrderNumber: string | null;
+  setTrackingOrderNumber: (orderNumber: string | null) => void;
+  openOrderTracking: (orderNumber?: string) => void;
   isLocationModalOpen: boolean;
   isOffersModalOpen: boolean;
   isAuthModalOpen: boolean;
@@ -130,11 +133,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [isTrackOrderOpen, setIsTrackOrderOpen] = useState(false);
+  const [trackingOrderNumber, setTrackingOrderNumber] = useState<string | null>(null);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [isOffersModalOpen, setIsOffersModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  const openOrderTracking = (orderNumber?: string) => {
+    if (orderNumber) {
+      setTrackingOrderNumber(orderNumber);
+    }
+    setIsTrackOrderOpen(true);
+  };
 
   // URL Hash Listener for deep-linking (#admin, #track-order, etc.)
   useEffect(() => {
@@ -143,7 +154,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (hash === '#staff-portal') {
         setIsAdminOpen(true);
       }
-      if (hash === '#track-order' || hash === '#track') {
+      if (hash.startsWith('#track-order') || hash.startsWith('#track')) {
+        const parts = hash.split('/');
+        if (parts.length > 1 && parts[1]) {
+          setTrackingOrderNumber(parts[1].toUpperCase());
+        }
         setIsTrackOrderOpen(true);
       }
     };
@@ -363,6 +378,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         isMenuModalOpen,
         isVideoModalOpen,
         isTrackOrderOpen,
+        trackingOrderNumber,
+        setTrackingOrderNumber,
+        openOrderTracking,
         isLocationModalOpen,
         isOffersModalOpen,
         isAuthModalOpen,

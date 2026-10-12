@@ -8,7 +8,7 @@ export const Footer: React.FC = () => {
   const {
     setIsMenuModalOpen,
     setIsOffersModalOpen,
-    setIsTrackOrderOpen,
+    openOrderTracking,
     showToast,
   } = useApp();
 
@@ -103,7 +103,7 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <button
-                  onClick={() => setIsTrackOrderOpen(true)}
+                  onClick={() => openOrderTracking()}
                   className="hover:text-amber-400 transition cursor-pointer"
                 >
                   Track Order

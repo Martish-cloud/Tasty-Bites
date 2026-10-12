@@ -16,7 +16,7 @@ const FAQS: FAQItem[] = [
   {
     question: 'How can I track my food order in real-time?',
     answer:
-      'Every order generates a live tracking ID (e.g., TB-842910). You can click "Track Order" in the navigation bar to watch the 5 stages of fulfillment: payment verification, kitchen acceptance, live cooking, out with delivery rider, and arrival at your door.',
+      'Each confirmed demo order receives a unique order and tracking ID (e.g., TB-910243). You can track your simulated order in real-time from the Track Order navigation link or directly after checkout across five simulated fulfillment stages: Order Confirmed, Restaurant Accepted, Preparing Your Food, Delivery Partner Assigned / Out for Delivery, and Delivered.',
   },
   {
     question: 'Are ingredients sourced fresh daily?',

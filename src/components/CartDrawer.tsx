@@ -19,6 +19,8 @@ import { useApp } from '../context/AppContext';
 import confetti from 'canvas-confetti';
 import { createDBOrder, type PaymentMethod, type Order } from '../services/db';
 
+export const DEMO_MODE = true;
+
 export const CartDrawer: React.FC = () => {
   const {
     cart,
@@ -37,7 +39,7 @@ export const CartDrawer: React.FC = () => {
     applyPromo,
     removePromo,
     location,
-    setIsTrackOrderOpen,
+    openOrderTracking,
     showToast,
     currentUser,
     setIsAuthModalOpen,
@@ -91,7 +93,7 @@ export const CartDrawer: React.FC = () => {
     setCheckoutStep('details');
   };
 
-  const finalizeOrder = (verifiedPaymentId?: string, paymentStatus: 'paid' | 'pending' = 'paid') => {
+  const finalizeOrder = (verifiedPaymentId?: string) => {
     const orderItems = cart.map((i) => ({
       productId: i.product.id,
       quantity: i.quantity,
@@ -112,8 +114,9 @@ export const CartDrawer: React.FC = () => {
       items: orderItems,
       promoCode: appliedPromo?.code,
       paymentMethod,
-      paymentStatus,
-      paymentId: verifiedPaymentId,
+      paymentStatus: 'demo_confirmed',
+      paymentId: verifiedPaymentId || `demo_pay_${Date.now()}`,
+      isDemoOrder: true,
     });
 
     setIsProcessing(false);
@@ -130,14 +133,12 @@ export const CartDrawer: React.FC = () => {
 
       clearCart();
       showToast(
-        paymentStatus === 'paid'
-          ? `Payment verified & Order #${res.order.orderNumber} placed! 🎉`
-          : `Order #${res.order.orderNumber} placed with Cash on Delivery! 🛵`,
+        `Demo Order #${res.order.orderNumber} confirmed! No real payment processed. 🎉`,
         'success'
       );
     } else {
-      setPaymentError(res.error || 'Failed to record order.');
-      showToast(res.error || 'Failed to record order in backend', 'error');
+      setPaymentError(res.error || 'Failed to record demo order.');
+      showToast(res.error || 'Failed to record demo order in database', 'error');
     }
   };
 
@@ -157,78 +158,18 @@ export const CartDrawer: React.FC = () => {
     setPaymentError(null);
     setIsProcessing(true);
 
-    // Section 8: Cash on Delivery Workflow
-    if (paymentMethod === 'cod') {
-      setTimeout(() => {
-        finalizeOrder(undefined, 'pending');
-      }, 800);
-      return;
-    }
-
-    // Section 7: Secure Online Payment Workflow (Razorpay / UPI)
-    const razorpayKey = (window as any).VITE_RAZORPAY_KEY_ID || 'rzp_test_TastyBitesVerified';
-
-    // Check if Razorpay script is present
-    if (typeof (window as any).Razorpay === 'function') {
-      try {
-        const options = {
-          key: razorpayKey,
-          amount: total * 100, // amount in paise
-          currency: 'INR',
-          name: 'Tasty Bites Gourmet',
-          description: `Order Payment for ${customerName} (₹${total})`,
-          prefill: {
-            name: customerName,
-            contact: customerPhone,
-            email: customerEmail,
-          },
-          theme: {
-            color: '#e52e2e',
-          },
-          handler: function (response: any) {
-            // Server-side / Provider verified payment handler
-            if (response && response.razorpay_payment_id) {
-              finalizeOrder(response.razorpay_payment_id, 'paid');
-            } else {
-              setIsProcessing(false);
-              setPaymentError('Payment verification returned an invalid payload.');
-              showToast('Payment verification failed.', 'error');
-            }
-          },
-          modal: {
-            ondismiss: function () {
-              setIsProcessing(false);
-              setPaymentError('Payment window was closed or cancelled. Order has not been charged.');
-              showToast('Payment cancelled. Your cart has been preserved.', 'info');
-            },
-          },
-        };
-
-        const rzp = new (window as any).Razorpay(options);
-        rzp.on('payment.failed', function (resp: any) {
-          setIsProcessing(false);
-          const errorMsg = resp.error?.description || 'Transaction declined by payment gateway.';
-          setPaymentError(`Payment failed: ${errorMsg}`);
-          showToast(`Payment failed: ${errorMsg}`, 'error');
-        });
-        rzp.open();
-        return;
-      } catch (err) {
-        console.warn('Razorpay open failed, executing provider fallback verification', err);
-      }
-    }
-
-    // Standard Verified Payment Simulation (subject to merchant activation)
+    // DEMO MODE: Zero real payments. Absolutely no Razorpay popup or card charge.
     setTimeout(() => {
-      const simulatedPaymentId = `pay_rzp_mock_${Date.now()}`;
-      finalizeOrder(simulatedPaymentId, 'paid');
-    }, 1200);
+      const simulatedPaymentId = `demo_pay_${Date.now()}`;
+      finalizeOrder(simulatedPaymentId);
+    }, 700);
   };
 
   const handleTrackNow = () => {
+    const orderNum = confirmedOrder?.orderNumber;
     setCheckoutStep('cart');
     setIsCartOpen(false);
-    setIsTrackOrderOpen(true);
+    openOrderTracking(orderNum);
   };
 
   const handleClose = () => {
@@ -278,13 +219,14 @@ export const CartDrawer: React.FC = () => {
                   <CheckCircle2 className="w-10 h-10" />
                 </div>
                 <div>
+                  <div className="inline-block bg-amber-100 text-amber-900 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider mb-1.5">
+                    Safe Demo Mode • Zero Real Charge
+                  </div>
                   <h3 className="text-xl font-extrabold text-neutral-900">
-                    {confirmedOrder.paymentMethod === 'cod'
-                      ? 'Order Placed (Cash on Delivery)!'
-                      : 'Payment Verified & Order Confirmed!'}
+                    Demo Order Placed Successfully!
                   </h3>
-                  <p className="text-xs text-neutral-500 mt-1">
-                    Your gourmet meal is currently being scheduled with the kitchen.
+                  <p className="text-xs text-emerald-700 font-semibold mt-1">
+                    “Demo Order Placed Successfully — No Real Payment Was Processed.”
                   </p>
                 </div>
 
@@ -302,19 +244,13 @@ export const CartDrawer: React.FC = () => {
                     <span className="font-mono text-neutral-800">{confirmedOrder.customer.phone}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Payment Method:</span>
-                    <span className="font-bold uppercase text-neutral-900">{confirmedOrder.paymentMethod}</span>
+                    <span>Order Mode:</span>
+                    <span className="font-bold text-amber-700">Simulated Demo Order</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Payment Status:</span>
-                    <span
-                      className={`font-bold px-2 py-0.5 rounded text-[10.5px] uppercase ${
-                        confirmedOrder.paymentStatus === 'paid'
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : 'bg-amber-100 text-amber-800'
-                      }`}
-                    >
-                      {confirmedOrder.paymentStatus === 'paid' ? 'Paid Online' : 'Pending on Delivery'}
+                    <span className="font-bold px-2 py-0.5 rounded text-[10.5px] uppercase bg-emerald-100 text-emerald-800">
+                      Demo Confirmed (₹0 Charged)
                     </span>
                   </div>
                   <div className="flex justify-between">
@@ -322,7 +258,7 @@ export const CartDrawer: React.FC = () => {
                     <span className="font-bold text-emerald-700 capitalize">{confirmedOrder.orderStatus}</span>
                   </div>
                   <div className="flex justify-between pt-1 border-t border-neutral-200">
-                    <span>Total Amount:</span>
+                    <span>Order Value (Demo):</span>
                     <span className="font-extrabold text-neutral-900 text-sm">₹{confirmedOrder.total}</span>
                   </div>
                 </div>
@@ -448,7 +384,7 @@ export const CartDrawer: React.FC = () => {
                 {/* Payment Options */}
                 <div className="space-y-2 pt-1">
                   <span className="font-bold text-neutral-900 uppercase text-[10px] tracking-wider">
-                    Select Payment Gateway
+                    Demo Mode Checkout Method
                   </span>
                   <div className="space-y-2">
                     <label
@@ -462,8 +398,8 @@ export const CartDrawer: React.FC = () => {
                       <div className="flex items-center gap-2.5">
                         <CreditCard className="w-4 h-4 text-amber-600" />
                         <div>
-                          <div className="font-bold text-neutral-900">Razorpay (Cards, UPI, NetBanking)</div>
-                          <span className="text-[10px] text-neutral-500">Fast, instant & 100% encrypted</span>
+                          <div className="font-bold text-neutral-900">Simulated Instant Checkout (Demo)</div>
+                          <span className="text-[10px] text-emerald-700 font-medium">Safe Demo Mode • Zero real payment processed</span>
                         </div>
                       </div>
                       <input
@@ -485,8 +421,8 @@ export const CartDrawer: React.FC = () => {
                       <div className="flex items-center gap-2.5">
                         <QrCode className="w-4 h-4 text-emerald-600" />
                         <div>
-                          <div className="font-bold text-neutral-900">Instant UPI (GPay / PhonePe / Paytm)</div>
-                          <span className="text-[10px] text-neutral-500">Scan QR or enter UPI VPA</span>
+                          <div className="font-bold text-neutral-900">Simulated UPI Payment (Demo)</div>
+                          <span className="text-[10px] text-emerald-700 font-medium">Virtual UPI intent • No bank transfer</span>
                         </div>
                       </div>
                       <input
@@ -508,8 +444,8 @@ export const CartDrawer: React.FC = () => {
                       <div className="flex items-center gap-2.5">
                         <Truck className="w-4 h-4 text-blue-600" />
                         <div>
-                          <div className="font-bold text-neutral-900">Cash on Delivery (COD)</div>
-                          <span className="text-[10px] text-neutral-500">Pay cash or scan QR at doorstep</span>
+                          <div className="font-bold text-neutral-900">Cash on Delivery (Simulated COD)</div>
+                          <span className="text-[10px] text-neutral-500">Demo payment collection upon arrival</span>
                         </div>
                       </div>
                       <input
@@ -543,7 +479,7 @@ export const CartDrawer: React.FC = () => {
                     <span>₹{tax}</span>
                   </div>
                   <div className="flex justify-between font-bold text-neutral-900 text-sm pt-1 border-t border-neutral-200">
-                    <span>Final Payable Amount:</span>
+                    <span>Demo Order Total:</span>
                     <span className="text-amber-600 font-mono">₹{total}</span>
                   </div>
                 </div>
@@ -562,11 +498,9 @@ export const CartDrawer: React.FC = () => {
                     className="w-2/3 bg-[#e52e2e] hover:bg-[#cc2222] text-white font-bold py-3 rounded-xl shadow-lg transition cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
                   >
                     {isProcessing ? (
-                      <span>Verifying Payment...</span>
-                    ) : paymentMethod === 'cod' ? (
-                      <span>Place COD Order (₹{total})</span>
+                      <span>Recording Demo Order...</span>
                     ) : (
-                      <span>Pay ₹{total} via Razorpay</span>
+                      <span>Confirm Demo Order (₹{total})</span>
                     )}
                   </button>
                 </div>

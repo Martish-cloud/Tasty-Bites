@@ -11,7 +11,7 @@ export type OrderStatus =
   | 'delivered'
   | 'cancelled';
 
-export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
+export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded' | 'demo_confirmed';
 
 export type PaymentMethod = 'razorpay' | 'upi' | 'card' | 'cod';
 
@@ -65,6 +65,13 @@ export interface Order {
   orderStatus: OrderStatus;
   estimatedDeliveryMinutes: number;
   statusHistory: StatusHistoryItem[];
+  isDemoOrder?: boolean;
+  riderInfo?: {
+    name: string;
+    phone: string;
+    rating: string;
+    vehicle: string;
+  };
   createdAt: string;
   updatedAt: string;
 }
@@ -319,6 +326,7 @@ export interface CreateOrderParams {
   paymentMethod: PaymentMethod;
   paymentStatus?: PaymentStatus;
   paymentId?: string;
+  isDemoOrder?: boolean;
 }
 
 export function createDBOrder(params: CreateOrderParams): { success: boolean; order?: Order; error?: string } {
@@ -385,6 +393,8 @@ export function createDBOrder(params: CreateOrderParams): { success: boolean; or
       ? 'paid' 
       : 'pending';
 
+  const isDemo = params.isDemoOrder ?? true;
+
   const newOrder: Order = {
     id: orderId,
     orderNumber,
@@ -400,14 +410,23 @@ export function createDBOrder(params: CreateOrderParams): { success: boolean; or
     promoCode: params.promoCode,
     paymentMethod: params.paymentMethod,
     paymentStatus,
-    paymentId: params.paymentId || (isOnlinePayment && paymentStatus === 'paid' ? `pay_RAZOR_${randomSuffix}` : undefined),
+    paymentId: params.paymentId || (isOnlinePayment && paymentStatus === 'paid' ? `pay_DEMO_${randomSuffix}` : undefined),
     orderStatus: 'placed',
     estimatedDeliveryMinutes: 25,
+    isDemoOrder: isDemo,
+    riderInfo: {
+      name: 'Rahul Verma (Demo Partner)',
+      phone: '+91 98000 00000',
+      rating: '4.9',
+      vehicle: 'Eco EV Express • Hot Thermal Bag',
+    },
     statusHistory: [
       {
         status: 'placed',
         timestamp: now,
-        note: `Order #${orderNumber} placed via ${params.paymentMethod.toUpperCase()} (${paymentStatus === 'paid' ? 'Payment Verified' : 'Payment on Delivery'}).`,
+        note: isDemo
+          ? `Demo order #${orderNumber} confirmed — no real payment was processed.`
+          : `Order #${orderNumber} placed via ${params.paymentMethod.toUpperCase()} (${paymentStatus === 'paid' ? 'Payment Verified' : 'Payment on Delivery'}).`,
         updatedBy: 'Order System',
       },
     ],
@@ -419,11 +438,24 @@ export function createDBOrder(params: CreateOrderParams): { success: boolean; or
   saveToStorage(ORDERS_KEY, [newOrder, ...orders]);
   addAuditLog(
     'order_created',
-    `New order #${orderNumber} created for ${params.customer.name} (₹${total})`,
+    `New ${isDemo ? 'demo ' : ''}order #${orderNumber} created for ${params.customer.name} (₹${total})`,
     params.customer.name
   );
 
   return { success: true, order: newOrder };
+}
+
+export function getDBOrdersForCustomer(phoneOrEmail: string): Order[] {
+  if (!phoneOrEmail) return [];
+  const cleanTarget = phoneOrEmail.replace(/\D/g, '').slice(-10);
+  const targetLower = phoneOrEmail.trim().toLowerCase();
+  const allOrders = getDBOrders();
+
+  return allOrders.filter((o) => {
+    const custPhone = o.customer.phone.replace(/\D/g, '').slice(-10);
+    const custEmail = (o.customer.email || '').toLowerCase();
+    return (cleanTarget && custPhone === cleanTarget) || (targetLower && custEmail === targetLower);
+  });
 }
 
 export function updateDBOrderStatus(

@@ -13,6 +13,7 @@ export const Navbar: React.FC = () => {
     setIsWishlistOpen,
     setIsMenuModalOpen,
     setIsOffersModalOpen,
+    openOrderTracking,
   } = useApp();
 
 
@@ -37,6 +38,13 @@ export const Navbar: React.FC = () => {
         const el = document.getElementById('popular-dishes');
         if (el) el.scrollIntoView({ behavior: 'smooth' });
         else setIsMenuModalOpen(true);
+      },
+    },
+    {
+      name: 'Track Order',
+      action: () => {
+        setActiveTab('Track Order');
+        openOrderTracking();
       },
     },
     {
