@@ -27,6 +27,7 @@ interface AppContextType {
   isLocationModalOpen: boolean;
   isOffersModalOpen: boolean;
   isAuthModalOpen: boolean;
+  isAdminOpen: boolean;
   selectedProduct: Product | null;
 
   // Cart calculations
@@ -61,6 +62,7 @@ interface AppContextType {
   setIsLocationModalOpen: (open: boolean) => void;
   setIsOffersModalOpen: (open: boolean) => void;
   setIsAuthModalOpen: (open: boolean) => void;
+  setIsAdminOpen: (open: boolean) => void;
   setSelectedProduct: (product: Product | null) => void;
 }
 
@@ -109,7 +111,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [isOffersModalOpen, setIsOffersModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  // URL Hash Listener for deep-linking (#admin, #track-order, etc.)
+  useEffect(() => {
+    const handleHash = () => {
+      const hash = window.location.hash.toLowerCase();
+      const path = window.location.pathname.toLowerCase();
+      if (hash === '#admin' || path === '/admin') {
+        setIsAdminOpen(true);
+      }
+      if (hash === '#track-order' || hash === '#track') {
+        setIsTrackOrderOpen(true);
+      }
+    };
+    handleHash();
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
 
   // Sync to LocalStorage
   useEffect(() => {
@@ -268,6 +288,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         isLocationModalOpen,
         isOffersModalOpen,
         isAuthModalOpen,
+        isAdminOpen,
         selectedProduct,
         subtotal,
         discount,
@@ -296,6 +317,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsLocationModalOpen,
         setIsOffersModalOpen,
         setIsAuthModalOpen,
+        setIsAdminOpen,
         setSelectedProduct,
       }}
     >

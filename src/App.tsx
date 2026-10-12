@@ -1,8 +1,9 @@
-import { AppProvider } from './context/AppContext';
+import { AppProvider, useApp } from './context/AppContext';
 
 import { TopBar } from './components/TopBar';
 import { Navbar } from './components/Navbar';
-import { HeroSection } from './sections/HeroSection';
+import { CinematicHero } from './components/CinematicHero';
+import { Section1VideoShowcase } from './components/Section1VideoShowcase';
 import { CategoryBar } from './sections/CategoryBar';
 import { PopularDishes } from './sections/PopularDishes';
 import { ServiceBenefits } from './sections/ServiceBenefits';
@@ -12,6 +13,7 @@ import { WishlistDrawer } from './components/WishlistDrawer';
 import { ProductDetailModal } from './components/ProductDetailModal';
 import { VideoModal } from './components/VideoModal';
 import { TrackOrderModal } from './components/TrackOrderModal';
+import { AdminModal } from './components/AdminModal';
 import { LocationModal } from './components/LocationModal';
 import { OffersModal } from './components/OffersModal';
 import { AuthModal } from './components/AuthModal';
@@ -19,6 +21,8 @@ import { FullMenuModal } from './sections/FullMenuModal';
 import { ToastContainer } from './components/Toast';
 
 export function AppContent() {
+  const { isAdminOpen, setIsAdminOpen } = useApp();
+
   return (
     <div className="min-h-screen bg-[#f8f9fa] text-neutral-800 flex flex-col font-sans selection:bg-amber-500 selection:text-white">
       {/* 1. Top Utility Bar */}
@@ -27,9 +31,10 @@ export function AppContent() {
       {/* 2. Sticky Navbar */}
       <Navbar />
 
-      {/* 3. Hero Section */}
+      {/* 3. Main Content with Cinematic 160-Frame Sequence & Section 1 Video Showcase */}
       <main className="flex-1">
-        <HeroSection />
+        <CinematicHero />
+        <Section1VideoShowcase />
 
         {/* 4 & 5 & 6. Category Strip & Promo Banner Card */}
         <CategoryBar />
@@ -50,6 +55,7 @@ export function AppContent() {
       <ProductDetailModal />
       <VideoModal />
       <TrackOrderModal />
+      <AdminModal isOpen={isAdminOpen} onClose={() => setIsAdminOpen(false)} />
       <LocationModal />
       <OffersModal />
       <AuthModal />

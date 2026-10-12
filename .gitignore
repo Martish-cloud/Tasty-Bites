@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Raw root asset directories (served from public/)
+/Images/
+/Videos/
+/tasty_bites_clean_160_frames/

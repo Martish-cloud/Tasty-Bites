@@ -3,7 +3,15 @@ import { useApp } from '../context/AppContext';
 
 
 export const TopBar: React.FC = () => {
-  const { location, setIsLocationModalOpen, setIsOffersModalOpen, setIsTrackOrderOpen, setIsAuthModalOpen, showToast } = useApp();
+  const {
+    location,
+    setIsLocationModalOpen,
+    setIsOffersModalOpen,
+    setIsTrackOrderOpen,
+    setIsAuthModalOpen,
+    setIsAdminOpen,
+    showToast,
+  } = useApp();
 
   return (
     <div className="w-full bg-[#0c0b0a] text-neutral-300 text-xs py-2 px-4 sm:px-8 border-b border-neutral-800/60 select-none z-30 relative">
@@ -82,6 +90,17 @@ export const TopBar: React.FC = () => {
           </button>
 
           <span className="text-neutral-700 hidden sm:inline">|</span>
+
+          {/* Staff Admin Portal */}
+          <button
+            onClick={() => setIsAdminOpen(true)}
+            className="flex items-center gap-1 text-amber-500/90 hover:text-amber-400 transition font-mono text-[11px] cursor-pointer"
+            title="Staff Admin Portal (PIN: 1234)"
+          >
+            <span>🔐 Admin</span>
+          </button>
+
+          <span className="text-neutral-700">|</span>
 
           {/* Sign In */}
           <button

@@ -9,6 +9,7 @@ export const Footer: React.FC = () => {
     setIsMenuModalOpen,
     setIsOffersModalOpen,
     setIsTrackOrderOpen,
+    setIsAdminOpen,
     showToast,
   } = useApp();
 
@@ -131,6 +132,15 @@ export const Footer: React.FC = () => {
                   className="hover:text-amber-400 transition cursor-pointer"
                 >
                   Privacy Policy
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => setIsAdminOpen(true)}
+                  className="hover:text-amber-400 text-amber-500/90 font-medium transition cursor-pointer flex items-center gap-1.5"
+                  title="Staff Portal (PIN: 1234)"
+                >
+                  <span>🔐 Staff Admin Portal</span>
                 </button>
               </li>
             </ul>
