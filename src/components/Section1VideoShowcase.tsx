@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, Pause, Volume2, VolumeX, Maximize2, Sparkles, Flame, Plus, Minus } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Maximize2, Sparkles, Flame, Plus, Minus, ChefHat } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { PRODUCTS } from '../data/products';
 
@@ -79,9 +79,28 @@ export const Section1VideoShowcase: React.FC = () => {
   const [isMuted, setIsMuted] = useState(true);
 
   const mainVideoRef = useRef<HTMLVideoElement>(null);
+  const previewVideoRef = useRef<HTMLVideoElement>(null);
+  const isSyncingRef = useRef<boolean>(false);
   const sectionRef = useRef<HTMLElement>(null);
 
-  // Auto pause when scrolled out of view to preserve resources
+  // Synchronize preview player with master player when selected video or play state changes
+  useEffect(() => {
+    const main = mainVideoRef.current;
+    const preview = previewVideoRef.current;
+    if (!main || !preview) return;
+
+    if (Math.abs(preview.currentTime - main.currentTime) > 0.05) {
+      preview.currentTime = main.currentTime;
+    }
+
+    if (isPlaying && preview.paused) {
+      preview.play().catch(() => {});
+    } else if (!isPlaying && !preview.paused) {
+      preview.pause();
+    }
+  }, [selectedVideo, isPlaying]);
+
+  // Auto pause when scrolled out of view to preserve system resources
   useEffect(() => {
     const video = mainVideoRef.current;
     if (!video) return;
@@ -91,9 +110,11 @@ export const Section1VideoShowcase: React.FC = () => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             video.play().catch(() => {});
+            previewVideoRef.current?.play().catch(() => {});
             setIsPlaying(true);
           } else {
             video.pause();
+            previewVideoRef.current?.pause();
             setIsPlaying(false);
           }
         });
@@ -108,14 +129,52 @@ export const Section1VideoShowcase: React.FC = () => {
     return () => observer.disconnect();
   }, []);
 
+  const handleMasterPlay = () => {
+    setIsPlaying(true);
+    if (previewVideoRef.current && previewVideoRef.current.paused) {
+      previewVideoRef.current.play().catch(() => {});
+    }
+  };
+
+  const handleMasterPause = () => {
+    setIsPlaying(false);
+    if (previewVideoRef.current && !previewVideoRef.current.paused) {
+      previewVideoRef.current.pause();
+    }
+  };
+
+  const handleMasterTimeUpdate = () => {
+    const main = mainVideoRef.current;
+    const preview = previewVideoRef.current;
+    if (!main || !preview || isSyncingRef.current) return;
+
+    const drift = Math.abs(preview.currentTime - main.currentTime);
+    if (drift > 0.15) {
+      isSyncingRef.current = true;
+      preview.currentTime = main.currentTime;
+      setTimeout(() => {
+        isSyncingRef.current = false;
+      }, 50);
+    }
+  };
+
+  const handleMasterSeeking = () => {
+    if (mainVideoRef.current && previewVideoRef.current) {
+      previewVideoRef.current.currentTime = mainVideoRef.current.currentTime;
+    }
+  };
+
   const togglePlay = () => {
     const video = mainVideoRef.current;
+    const preview = previewVideoRef.current;
     if (!video) return;
     if (video.paused) {
-      video.play();
+      video.play().catch(() => {});
+      preview?.play().catch(() => {});
       setIsPlaying(true);
     } else {
       video.pause();
+      preview?.pause();
       setIsPlaying(false);
     }
   };
@@ -131,12 +190,22 @@ export const Section1VideoShowcase: React.FC = () => {
     if (selectedVideo.id === item.id) return;
     setSelectedVideo(item);
     setIsPlaying(true);
+
     if (mainVideoRef.current) {
       mainVideoRef.current.pause();
+      mainVideoRef.current.currentTime = 0;
       mainVideoRef.current.poster = item.poster;
       mainVideoRef.current.src = item.src;
       mainVideoRef.current.load();
       mainVideoRef.current.play().catch(() => {});
+    }
+    if (previewVideoRef.current) {
+      previewVideoRef.current.pause();
+      previewVideoRef.current.currentTime = 0;
+      previewVideoRef.current.poster = item.poster;
+      previewVideoRef.current.src = item.src;
+      previewVideoRef.current.load();
+      previewVideoRef.current.play().catch(() => {});
     }
   };
 
@@ -218,7 +287,13 @@ export const Section1VideoShowcase: React.FC = () => {
                 loop
                 muted={isMuted}
                 playsInline
-                className="w-full h-full object-cover"
+                onPlay={handleMasterPlay}
+                onPause={handleMasterPause}
+                onTimeUpdate={handleMasterTimeUpdate}
+                onSeeking={handleMasterSeeking}
+                onSeeked={handleMasterSeeking}
+                onClick={togglePlay}
+                className="w-full h-full object-cover cursor-pointer"
               />
 
               {/* Gradient Vignettes */}
@@ -233,6 +308,20 @@ export const Section1VideoShowcase: React.FC = () => {
                 </span>
                 <span className="text-[11px] bg-black/60 backdrop-blur-md text-neutral-300 px-2.5 py-1 rounded-full border border-neutral-700">
                   {selectedVideo.category}
+                </span>
+              </div>
+
+              {/* Tasty Bites Official Branded Badge covering Google Flow watermark */}
+              <div
+                className="absolute z-15 pointer-events-none select-none flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-950/85 backdrop-blur-md border border-amber-500/40 shadow-lg shadow-black/80"
+                style={{ left: '90.57%', top: '83.15%', transform: 'translate(-50%, -50%)' }}
+                title="TastyBites Culinary Cinema"
+              >
+                <div className="w-4 h-4 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white border border-amber-400/70 shadow-sm shrink-0">
+                  <ChefHat className="w-2.5 h-2.5" />
+                </div>
+                <span className="font-extrabold text-[10px] tracking-tight text-white whitespace-nowrap">
+                  Tasty<span className="text-amber-400">Bites</span>
                 </span>
               </div>
 
@@ -371,19 +460,38 @@ export const Section1VideoShowcase: React.FC = () => {
                       : 'bg-neutral-900/60 border-neutral-800 hover:bg-neutral-800/70 hover:border-neutral-700'
                   }`}
                 >
-                  {/* Video Thumbnail Image */}
+                  {/* Video Thumbnail / Live Synced Preview Container */}
                   <div className="relative w-28 h-20 rounded-xl overflow-hidden bg-neutral-950 shrink-0 border border-neutral-700/60 shadow-xs">
-                    <img
-                      src={item.poster}
-                      alt={item.title}
-                      className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-black/25 flex items-center justify-center group-hover:bg-black/10 transition-colors">
-                      <div className="w-7 h-7 rounded-full bg-amber-500/90 text-neutral-950 flex items-center justify-center shadow-md">
-                        <Play className="w-3 h-3 fill-current ml-0.5" />
-                      </div>
+                    {isCurrent ? (
+                      <video
+                        ref={previewVideoRef}
+                        src={item.src}
+                        poster={item.poster}
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="w-full h-full object-cover pointer-events-none"
+                      />
+                    ) : (
+                      <img
+                        src={item.poster}
+                        alt={item.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 pointer-events-none"
+                        loading="lazy"
+                      />
+                    )}
+
+                    {/* Micro Branded Badge covering watermark in preview card */}
+                    <div
+                      className="absolute z-10 pointer-events-none select-none flex items-center justify-center w-3.5 h-3.5 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 border border-amber-400/80 shadow-md text-white"
+                      style={{ left: '90.57%', top: '83.15%', transform: 'translate(-50%, -50%)' }}
+                      title="TastyBites"
+                    >
+                      <ChefHat className="w-2 h-2" />
                     </div>
+
+                    {/* Circular play icon overlay removed completely as per Requirement 1 */}
                   </div>
 
                   {/* Info details */}

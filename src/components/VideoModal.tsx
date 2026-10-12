@@ -102,6 +102,20 @@ export const VideoModal: React.FC = () => {
             <source src={activeVideo.src} type="video/mp4" />
           </video>
 
+          {/* Tasty Bites Official Branded Badge covering Google Flow watermark */}
+          <div
+            className="absolute z-15 pointer-events-none select-none flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-950/85 backdrop-blur-md border border-amber-500/40 shadow-lg shadow-black/80"
+            style={{ left: '90.57%', top: '83.15%', transform: 'translate(-50%, -50%)' }}
+            title="TastyBites Culinary Cinema"
+          >
+            <div className="w-4 h-4 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white border border-amber-400/70 shadow-sm shrink-0">
+              <ChefHat className="w-2.5 h-2.5" />
+            </div>
+            <span className="font-extrabold text-[10px] tracking-tight text-white whitespace-nowrap">
+              Tasty<span className="text-amber-400">Bites</span>
+            </span>
+          </div>
+
           {/* Floating Audio Quick Toggle */}
           <button
             onClick={() => setIsMuted(!isMuted)}
