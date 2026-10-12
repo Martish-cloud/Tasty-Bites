@@ -6,6 +6,7 @@ import { CinematicHero } from './components/CinematicHero';
 import { Section1VideoShowcase } from './components/Section1VideoShowcase';
 import { CategoryBar } from './sections/CategoryBar';
 import { PopularDishes } from './sections/PopularDishes';
+import { TastyBitesAdSection } from './components/TastyBitesAdSection';
 import { ComboOffersPreview } from './sections/ComboOffersPreview';
 import { AnimatedFoodShowcase } from './components/AnimatedFoodShowcase';
 import { BrandStorySection } from './sections/BrandStorySection';
@@ -56,6 +57,9 @@ export function AppContent() {
 
             {/* Popular Dishes */}
             <PopularDishes />
+
+            {/* Tasty Bites Advertisement Showcase (After Popular Dishes, Before Combo Offers) */}
+            <TastyBitesAdSection />
 
             {/* TASK 4: Special Combo Offers Preview (EXACTLY ABOVE moving food showcase) */}
             <ComboOffersPreview onExploreAllCombos={() => navigateTo('combo-offers')} />

@@ -132,12 +132,12 @@ export const Navbar: React.FC = () => {
         />
 
         {/* Center: Desktop Nav Links */}
-        <nav className="hidden lg:flex items-center space-x-7">
+        <nav className="hidden lg:flex items-center gap-3.5 xl:gap-6 shrink-0">
           {navItems.map((item) => (
             <button
               key={item.name}
               onClick={item.action}
-              className={`text-sm font-medium transition-colors relative py-1 cursor-pointer ${
+              className={`text-sm font-medium whitespace-nowrap transition-colors relative py-1 cursor-pointer ${
                 activeTab === item.name
                   ? 'text-amber-500 font-semibold'
                   : 'text-neutral-300 hover:text-white'

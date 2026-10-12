@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Star, ShieldCheck, MessageSquarePlus, ArrowRight, Quote } from 'lucide-react';
+import { Star, ShieldCheck, MessageSquarePlus, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { getDBReviews, getAverageRating, type Review } from '../services/db';
 import { WriteReviewModal } from '../components/WriteReviewModal';
 
@@ -14,8 +14,8 @@ export const CustomerReviewsSection: React.FC<CustomerReviewsSectionProps> = ({
   const [isWriteModalOpen, setIsWriteModalOpen] = useState(false);
 
   const { average, count } = getAverageRating();
-  // Display initial 4-5 cards
-  const displayReviews = reviews.slice(0, 4);
+  // Display all six featured reviews consistently
+  const displayReviews = reviews.slice(0, 6);
 
   const handleReviewAdded = (newReview: Review) => {
     setReviews([newReview, ...reviews]);
@@ -74,15 +74,15 @@ export const CustomerReviewsSection: React.FC<CustomerReviewsSectionProps> = ({
           </div>
         </div>
 
-        {/* 4 Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 text-left">
+        {/* 6 Cards Grid (Consistent 3-Column Layout) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
           {displayReviews.map((rev) => (
             <div
               key={rev.id}
-              className="bg-white border border-neutral-200/80 rounded-2xl p-5 shadow-xs hover:shadow-md hover:border-amber-400/40 transition-all flex flex-col justify-between relative group"
+              className="bg-white border border-neutral-200/90 rounded-2xl p-5 shadow-xs hover:shadow-md hover:border-amber-400/40 transition-all flex flex-col justify-between relative group"
             >
               <div>
-                {/* Top: Customer Profile & Stars */}
+                {/* Top: Customer Profile & Status */}
                 <div className="flex items-start justify-between gap-2 mb-3">
                   <div className="flex items-center gap-3">
                     <img
@@ -96,12 +96,12 @@ export const CustomerReviewsSection: React.FC<CustomerReviewsSectionProps> = ({
                         {rev.name}
                       </h4>
                       <div className="flex items-center gap-1 mt-0.5">
-                        {rev.isVerifiedPurchase && (
+                        {rev.isVerifiedPurchase ? (
                           <span className="inline-flex items-center gap-0.5 text-[9.5px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded">
                             <ShieldCheck className="w-2.5 h-2.5 text-emerald-600" />
-                            Verified
+                            Verified Order
                           </span>
-                        )}
+                        ) : null}
                         <span className="text-[10px] text-neutral-400">
                           {rev.isVerifiedPurchase ? '• ' : ''}{rev.date}
                         </span>
@@ -109,31 +109,59 @@ export const CustomerReviewsSection: React.FC<CustomerReviewsSectionProps> = ({
                     </div>
                   </div>
 
-                  <Quote className="w-4 h-4 text-neutral-300 group-hover:text-amber-400 transition-colors shrink-0" />
+                  <div className="bg-amber-50 text-amber-900 border border-amber-200/80 px-2 py-0.5 rounded-lg text-xs font-bold font-mono">
+                    {rev.rating.toFixed(1)}★
+                  </div>
                 </div>
 
                 {/* Star Rating */}
                 <div className="flex items-center gap-1 mb-2.5">
-                  {[1, 2, 3, 4, 5].map((s) => (
-                    <Star
-                      key={s}
-                      className={`w-3.5 h-3.5 ${
-                        s <= rev.rating
-                          ? 'text-amber-500 fill-amber-500'
-                          : 'text-neutral-200'
-                      }`}
-                    />
-                  ))}
+                  {[1, 2, 3, 4, 5].map((s) => {
+                    const isFull = s <= Math.floor(rev.rating);
+                    const isHalf = !isFull && s - 0.5 <= rev.rating;
+                    return (
+                      <span key={s} className="relative inline-block w-3.5 h-3.5">
+                        <Star className="w-3.5 h-3.5 text-neutral-200" />
+                        {isFull ? (
+                          <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500 absolute inset-0" />
+                        ) : isHalf ? (
+                          <span className="absolute inset-0 overflow-hidden w-[50%]">
+                            <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                          </span>
+                        ) : null}
+                      </span>
+                    );
+                  })}
                   <span className="text-[11px] font-bold text-neutral-700 ml-1">
-                    {rev.rating}.0
+                    {rev.rating.toFixed(1)}
                   </span>
                 </div>
 
                 {/* Review Text */}
-                <p className="text-xs text-neutral-600 leading-relaxed italic">
-                  {rev.comment}
+                <p className="text-xs text-neutral-600 leading-relaxed italic line-clamp-4">
+                  "{rev.comment}"
                 </p>
               </div>
+
+              {/* Bottom Metadata Hierarchy */}
+              {rev.orderNumber ? (
+                <div className="mt-4 pt-3 border-t border-neutral-100 flex items-center justify-between text-[11px] text-neutral-500">
+                  <span>
+                    Order Ref: <strong className="font-mono text-neutral-700">{rev.orderNumber}</strong>
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-emerald-600 font-medium text-[10.5px]">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                    Authenticated
+                  </span>
+                </div>
+              ) : (
+                <div className="mt-4 pt-3 border-t border-neutral-100 flex items-center justify-between text-[11px] text-neutral-400">
+                  <span>{rev.date}</span>
+                  <span className="text-[10px] text-neutral-400">
+                    Direct Feedback
+                  </span>
+                </div>
+              )}
             </div>
           ))}
         </div>

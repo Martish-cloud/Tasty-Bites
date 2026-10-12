@@ -11,6 +11,7 @@ import {
   getDBReviews,
   getAverageRating,
   getRatingDistribution,
+  DEMO_DISTRIBUTION_PERCENTAGES,
   type Review,
 } from '../services/db';
 import { WriteReviewModal } from '../components/WriteReviewModal';
@@ -119,8 +120,10 @@ export const AllReviewsPage: React.FC<AllReviewsPageProps> = ({ onBackToHome }) 
             {/* Distribution bars */}
             <div className="lg:col-span-8 space-y-2">
               {[5, 4, 3, 2, 1].map((stars) => {
-                const num = distribution[stars] || 0;
-                const pct = count > 0 ? Math.round((num / count) * 100) : 0;
+                const isDemo = reviews.every((r) => r.isSample);
+                const pct = isDemo
+                  ? (DEMO_DISTRIBUTION_PERCENTAGES[stars] ?? 0)
+                  : (count > 0 ? Math.round(((distribution[stars] || 0) / count) * 100) : 0);
                 return (
                   <div key={stars} className="flex items-center gap-3 text-xs">
                     <span className="w-12 font-bold text-neutral-700 flex items-center gap-1 shrink-0">
@@ -134,7 +137,7 @@ export const AllReviewsPage: React.FC<AllReviewsPageProps> = ({ onBackToHome }) 
                       />
                     </div>
                     <span className="w-14 text-right text-neutral-400 font-mono text-[11px]">
-                      {num} ({pct}%)
+                      {pct}%
                     </span>
                   </div>
                 );
@@ -231,36 +234,54 @@ export const AllReviewsPage: React.FC<AllReviewsPageProps> = ({ onBackToHome }) 
                       </div>
                     </div>
 
-                    <div className="bg-amber-50 text-amber-900 border border-amber-200 px-2 py-0.5 rounded-lg text-xs font-bold font-mono">
-                      {rev.rating}.0★
+                    <div className="bg-amber-50 text-amber-900 border border-amber-200/80 px-2 py-0.5 rounded-lg text-xs font-bold font-mono">
+                      {rev.rating.toFixed(1)}★
                     </div>
                   </div>
 
                   {/* Stars */}
-                  <div className="flex items-center gap-0.5 mb-2.5">
-                    {[1, 2, 3, 4, 5].map((s) => (
-                      <Star
-                        key={s}
-                        className={`w-3.5 h-3.5 ${
-                          s <= rev.rating
-                            ? 'text-amber-500 fill-amber-500'
-                            : 'text-neutral-200'
-                        }`}
-                      />
-                    ))}
+                  <div className="flex items-center gap-1 mb-2.5">
+                    {[1, 2, 3, 4, 5].map((s) => {
+                      const isFull = s <= Math.floor(rev.rating);
+                      const isHalf = !isFull && s - 0.5 <= rev.rating;
+                      return (
+                        <span key={s} className="relative inline-block w-3.5 h-3.5">
+                          <Star className="w-3.5 h-3.5 text-neutral-200" />
+                          {isFull ? (
+                            <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500 absolute inset-0" />
+                          ) : isHalf ? (
+                            <span className="absolute inset-0 overflow-hidden w-[50%]">
+                              <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                            </span>
+                          ) : null}
+                        </span>
+                      );
+                    })}
+                    <span className="text-[11px] font-bold text-neutral-700 ml-1">
+                      {rev.rating.toFixed(1)}
+                    </span>
                   </div>
 
                   {/* Content */}
-                  <p className="text-xs text-neutral-600 leading-relaxed italic">
+                  <p className="text-xs text-neutral-600 leading-relaxed italic line-clamp-4">
                     &ldquo;{rev.comment}&rdquo;
                   </p>
                 </div>
 
-                {rev.orderNumber && (
-                  <div className="mt-4 pt-3 border-t border-neutral-100 flex items-center justify-between text-[10px] text-neutral-400">
-                    <span>Order Ref: <strong className="font-mono text-neutral-700">{rev.orderNumber}</strong></span>
-                    <span className="text-emerald-600 flex items-center gap-0.5 font-bold">
-                      <CheckCircle2 className="w-3 h-3" /> Authenticated
+                {rev.orderNumber ? (
+                  <div className="mt-4 pt-3 border-t border-neutral-100 flex items-center justify-between text-[11px] text-neutral-500">
+                    <span>
+                      Order Ref: <strong className="font-mono text-neutral-700">{rev.orderNumber}</strong>
+                    </span>
+                    <span className="text-emerald-600 flex items-center gap-1 font-medium text-[10.5px]">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Authenticated
+                    </span>
+                  </div>
+                ) : (
+                  <div className="mt-4 pt-3 border-t border-neutral-100 flex items-center justify-between text-[11px] text-neutral-400">
+                    <span>{rev.date}</span>
+                    <span className="text-[10px] text-neutral-400">
+                      Direct Feedback
                     </span>
                   </div>
                 )}

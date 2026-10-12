@@ -664,7 +664,7 @@ export const INITIAL_REVIEWS: Review[] = [
     id: 'rev-sample-4',
     name: 'Vikramaditya Roy',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80',
-    rating: 5,
+    rating: 4.5,
     comment: 'The Dal Makhani reminds me of historic dhabas in Amritsar. Velvety texture, slow-simmered with white butter. Packed in leak-proof sealed containers.',
     date: '1 week ago',
     isVerifiedPurchase: true,
@@ -687,7 +687,7 @@ export const INITIAL_REVIEWS: Review[] = [
     id: 'rev-sample-6',
     name: 'Rajesh Nair',
     avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=120&q=80',
-    rating: 4,
+    rating: 4.5,
     comment: 'Quick express dispatch and clean eco packaging. The Kung Pao Chicken had genuine Sichuan peppers with bold aroma. Excellent restaurant-grade meal at home.',
     date: '2 weeks ago',
     isVerifiedPurchase: false,
@@ -700,11 +700,20 @@ export function getDBReviews(): Review[] {
   const loaded = loadFromStorage<Review[]>(REVIEWS_KEY, INITIAL_REVIEWS);
   let hasChange = false;
   const updated = loaded.map((r) => {
-    if ((r.id === 'rev-sample-3' || r.name === 'Ananya Sen') && r.avatar !== '/Images/ananya-avatar.jpg') {
+    let item = { ...r };
+    if ((item.id === 'rev-sample-3' || item.name === 'Ananya Sen') && item.avatar !== '/Images/ananya-avatar.jpg') {
       hasChange = true;
-      return { ...r, avatar: '/Images/ananya-avatar.jpg' };
+      item.avatar = '/Images/ananya-avatar.jpg';
     }
-    return r;
+    if ((item.id === 'rev-sample-4' || item.name === 'Vikramaditya Roy') && item.rating !== 4.5) {
+      hasChange = true;
+      item.rating = 4.5;
+    }
+    if ((item.id === 'rev-sample-6' || item.name === 'Rajesh Nair') && item.rating !== 4.5) {
+      hasChange = true;
+      item.rating = 4.5;
+    }
+    return item;
   });
   if (hasChange) {
     saveToStorage(REVIEWS_KEY, updated);
@@ -719,9 +728,9 @@ export function createDBReview(params: CreateReviewParams): { success: boolean; 
     return { success: false, error: 'Please enter a valid display name (at least 2 characters).' };
   }
 
-  const rating = Math.round(params.rating);
+  const rating = Math.min(5, Math.max(1, params.rating));
   if (rating < 1 || rating > 5) {
-    return { success: false, error: 'Rating must be an integer between 1 and 5 stars.' };
+    return { success: false, error: 'Rating must be between 1 and 5 stars.' };
   }
 
   const comment = params.comment.trim();
@@ -739,13 +748,10 @@ export function createDBReview(params: CreateReviewParams): { success: boolean; 
     }
   }
 
-  const defaultAvatars = [
-    'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80',
-    'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=120&q=80',
-    'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=120&q=80',
-    '/Images/ananya-avatar.jpg',
-  ];
-  const chosenAvatar = params.avatar || defaultAvatars[Math.floor(Math.random() * defaultAvatars.length)];
+  // Neutral generic avatar fallback (avoids re-assigning existing reviewers' photos)
+  const NEUTRAL_AVATAR_FALLBACK =
+    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' fill='%23f3f4f6'/%3E%3Cpath d='M20 20a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 3c-4.4 0-10 2.2-10 6v1h20v-1c0-3.8-5.6-6-10-6z' fill='%239ca3af'/%3E%3C/svg%3E";
+  const chosenAvatar = params.avatar || NEUTRAL_AVATAR_FALLBACK;
 
   const now = new Date();
   const newReview: Review = {
@@ -781,6 +787,14 @@ export function getAverageRating(): { average: number; count: number } {
   const avg = Math.round((sum / reviews.length) * 10) / 10;
   return { average: avg, count: reviews.length };
 }
+
+export const DEMO_DISTRIBUTION_PERCENTAGES: Record<number, number> = {
+  5: 51,
+  4: 30,
+  3: 17,
+  2: 2,
+  1: 0,
+};
 
 export function getRatingDistribution(): Record<number, number> {
   const reviews = getDBReviews();

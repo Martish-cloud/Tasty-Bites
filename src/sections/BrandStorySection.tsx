@@ -6,7 +6,7 @@ export const BrandStorySection: React.FC = () => {
   const { setIsMenuModalOpen } = useApp();
 
   return (
-    <section id="brand-story" className="w-full bg-[#14110f] text-white py-16 sm:py-24 border-t border-neutral-800/80 relative overflow-hidden">
+    <section id="brand-story" data-theme="dark" className="w-full bg-[#14110f] text-white py-16 sm:py-24 border-t border-neutral-800/80 relative overflow-hidden">
       {/* Warm Ambient Glows */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-red-600/10 rounded-full blur-3xl pointer-events-none" />

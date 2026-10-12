@@ -214,6 +214,8 @@ export const CinematicHero: React.FC = () => {
 
   return (
     <section
+      id="cinematic-hero"
+      data-theme="dark"
       ref={containerRef}
       className={`relative w-full ${
         isReducedMotion ? 'min-h-[85vh]' : 'h-[320vh]'

@@ -9,15 +9,6 @@ interface WriteReviewModalProps {
   onReviewSubmitted?: (newReview: Review) => void;
 }
 
-const AVATAR_PRESETS = [
-  'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80',
-  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80',
-  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80',
-  '/Images/ananya-avatar.jpg',
-  'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=120&q=80',
-  'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80',
-];
-
 export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
   isOpen,
   onClose,
@@ -30,7 +21,6 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
   const [hoverRating, setHoverRating] = useState<number | null>(null);
   const [comment, setComment] = useState('');
   const [orderNumber, setOrderNumber] = useState('');
-  const [selectedAvatar, setSelectedAvatar] = useState(AVATAR_PRESETS[0]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
@@ -51,7 +41,7 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
       name,
       rating,
       comment,
-      avatar: selectedAvatar,
+      avatar: (currentUser as any)?.avatar,
       orderNumber: orderNumber.trim() || undefined,
     });
     setIsSubmitting(false);
@@ -204,38 +194,6 @@ export const WriteReviewModal: React.FC<WriteReviewModalProps> = ({
             <span className="text-[10px] text-neutral-400 mt-0.5 block">
               If your order ID matches our database, a green Verified Purchase badge will be awarded.
             </span>
-          </div>
-
-          {/* Avatar Preset Selection */}
-          <div>
-            <label className="text-xs font-bold text-neutral-800 block mb-1.5">
-              Select Avatar
-            </label>
-            <div className="flex items-center gap-2.5 overflow-x-auto pb-1">
-              {AVATAR_PRESETS.map((av, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => setSelectedAvatar(av)}
-                  className={`relative rounded-full transition-all shrink-0 cursor-pointer ${
-                    selectedAvatar === av
-                      ? 'ring-2 ring-amber-500 ring-offset-2 scale-105'
-                      : 'opacity-70 hover:opacity-100'
-                  }`}
-                >
-                  <img
-                    src={av}
-                    alt={`Avatar ${idx + 1}`}
-                    className="w-9 h-9 rounded-full object-cover"
-                  />
-                  {selectedAvatar === av && (
-                    <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-amber-500 text-neutral-950 rounded-full flex items-center justify-center text-[8px] font-bold">
-                      ✓
-                    </div>
-                  )}
-                </button>
-              ))}
-            </div>
           </div>
 
           {/* Action Buttons */}

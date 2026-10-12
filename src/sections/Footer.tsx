@@ -27,7 +27,7 @@ export const Footer: React.FC = () => {
   };
 
   return (
-    <footer id="footer" className="w-full bg-[#0c0b0a] text-neutral-300 pt-12 pb-8 border-t border-neutral-800/80">
+    <footer id="footer" data-theme="dark" className="w-full bg-[#0c0b0a] text-neutral-300 pt-12 pb-8 border-t border-neutral-800/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
         {/* Main Footer Columns */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-6 pb-12 border-b border-neutral-800/80 text-left">

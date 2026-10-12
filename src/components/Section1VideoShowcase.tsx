@@ -233,6 +233,7 @@ export const Section1VideoShowcase: React.FC = () => {
   return (
     <section
       id="kitchen-videos"
+      data-theme="dark"
       ref={sectionRef}
       className="relative w-full bg-[#0d0c0b] text-white py-16 sm:py-24 border-b border-neutral-800/80 overflow-hidden"
     >
