@@ -12,11 +12,11 @@ export const AnimatedFoodShowcase: React.FC = () => {
   const row1Products = [
     PRODUCTS.find((p) => p.id === 'classic-burger')!,
     PRODUCTS.find((p) => p.id === 'smoky-bbq-burger')!,
-    PRODUCTS.find((p) => p.id === 'truffle-mushroom-burger')!, // Uses /images/one/Truffle Mushroom Swiss Burger.png
+    PRODUCTS.find((p) => p.id === 'truffle-mushroom-burger')!, // Uses /Images/1/Truffle Mushroom Swiss Burger.png
     PRODUCTS.find((p) => p.id === 'crispy-paneer-burger')!,
     PRODUCTS.find((p) => p.id === 'chicken-wings')!,
     PRODUCTS.find((p) => p.id === 'grilled-chicken')!,
-    PRODUCTS.find((p) => p.id === 'chicken-caesar-salad')!, // Uses /images/one/Charred Chicken Caesar Bowl.png
+    PRODUCTS.find((p) => p.id === 'chicken-caesar-salad')!, // Uses /Images/1/Charred Chicken Caesar Bowl.png
     PRODUCTS.find((p) => p.id === 'mediterranean-greek-salad')!,
   ].filter(Boolean);
 
@@ -26,8 +26,8 @@ export const AnimatedFoodShowcase: React.FC = () => {
     PRODUCTS.find((p) => p.id === 'pepperoni-overload-pizza')!,
     PRODUCTS.find((p) => p.id === 'farmhouse-supreme-pizza')!,
     PRODUCTS.find((p) => p.id === 'smoky-bbq-chicken-pizza')!,
-    PRODUCTS.find((p) => p.id === 'pasta-alfredo')!, // Uses /images/one/Pasta Alfredo.png
-    PRODUCTS.find((p) => p.id === 'truffle-tagliatelle')!, // Uses /images/one/Black Truffle Tagliatelle.png
+    PRODUCTS.find((p) => p.id === 'pasta-alfredo')!, // Uses /Images/1/Pasta Alfredo.png
+    PRODUCTS.find((p) => p.id === 'truffle-tagliatelle')!, // Uses /Images/1/Black Truffle Tagliatelle.png
     PRODUCTS.find((p) => p.id === 'avocado-quinoa-bowl')!,
     PRODUCTS.find((p) => p.id === 'steamed-dim-sums')!,
   ].filter(Boolean);
@@ -37,11 +37,11 @@ export const AnimatedFoodShowcase: React.FC = () => {
     PRODUCTS.find((p) => p.id === 'chicken-dum-biryani')!,
     PRODUCTS.find((p) => p.id === 'veg-biryani')!,
     PRODUCTS.find((p) => p.id === 'paneer-butter-masala')!,
-    PRODUCTS.find((p) => p.id === 'dal-makhani-combo')!, // Uses /images/one/Slow Simmered Dal Makhani.png
-    PRODUCTS.find((p) => p.id === 'tandoori-soya-chaap')!, // Uses /images/one/Tandoori Soya Chaap Tikka.png
-    PRODUCTS.find((p) => p.id === 'schezwan-fried-rice')!, // Uses /images/one/Wok Schezwan Fried Rice.png
+    PRODUCTS.find((p) => p.id === 'dal-makhani-combo')!, // Uses /Images/1/Slow Simmered Dal Makhani.png
+    PRODUCTS.find((p) => p.id === 'tandoori-soya-chaap')!, // Uses /Images/1/Tandoori Soya Chaap Tikka.png
+    PRODUCTS.find((p) => p.id === 'schezwan-fried-rice')!, // Uses /Images/1/Wok Schezwan Fried Rice.png
     PRODUCTS.find((p) => p.id === 'chilli-garlic-noodles')!,
-    PRODUCTS.find((p) => p.id === 'kung-pao-chicken')!, // Uses /images/one/Kung Pao Chicken.png
+    PRODUCTS.find((p) => p.id === 'kung-pao-chicken')!, // Uses /Images/1/Kung Pao Chicken.png
   ].filter(Boolean);
 
   // Row 4: Desserts & Handcrafted Beverages (Right to Left)

@@ -1,0 +1,17 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/images/one/:path*",
+      "destination": "/Images/1/:path*"
+    },
+    {
+      "source": "/images/1/:path*",
+      "destination": "/Images/1/:path*"
+    },
+    {
+      "source": "/images/:path*",
+      "destination": "/Images/:path*"
+    }
+  ]
+}
