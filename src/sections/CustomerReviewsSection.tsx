@@ -35,7 +35,7 @@ export const CustomerReviewsSection: React.FC<CustomerReviewsSectionProps> = ({
               What Our Customers Say
             </h2>
             <p className="text-neutral-500 text-xs sm:text-sm mt-1.5 leading-relaxed">
-              Real feedback from people who enjoy TastyBItes. Discover their experiences with our food, quality, and service.
+              Real feedback from people who enjoy Tasty Bites. Discover their experiences with our food, quality, and service.
             </p>
           </div>
 

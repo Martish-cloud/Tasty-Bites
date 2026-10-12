@@ -57,7 +57,7 @@ export const AllReviewsPage: React.FC<AllReviewsPageProps> = ({ onBackToHome }) 
             className="inline-flex items-center gap-1.5 text-xs font-bold text-neutral-600 hover:text-neutral-950 transition-colors cursor-pointer group"
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            <span>Back to TastyBItes Home</span>
+            <span>Back to TastyBites Home</span>
           </button>
         </div>
 

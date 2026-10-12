@@ -9,7 +9,7 @@ interface FAQItem {
 
 const FAQS: FAQItem[] = [
   {
-    question: 'How does TastyBItes guarantee 20–30 minute delivery?',
+    question: 'How does TastyBites guarantee 20–30 minute delivery?',
     answer:
       'We operate decentralized micro-kitchen hubs located within high-density urban areas. Each hub has dedicated rider pods and prep workstations designed to flash-cook dishes in under 8 minutes, followed by direct thermal dispatch.',
   },

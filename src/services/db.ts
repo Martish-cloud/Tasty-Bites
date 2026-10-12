@@ -160,7 +160,7 @@ const INITIAL_ORDERS: Order[] = [
       {
         status: 'out_for_delivery',
         timestamp: new Date(Date.now() - 8 * 60000).toISOString(),
-        note: 'TastyBItes Partner (+91 98450 11223) picked up order on EV Bike.',
+        note: 'TastyBites Partner (+91 98450 11223) picked up order on EV Bike.',
         updatedBy: 'Dispatch System',
       },
     ],
@@ -423,7 +423,7 @@ export function createDBOrder(params: CreateOrderParams): { success: boolean; or
     estimatedDeliveryMinutes: 25,
     isDemoOrder: isDemo,
     riderInfo: {
-      name: 'TastyBItes Partner',
+      name: 'TastyBites Partner',
       phone: '+91 98000 00000',
       rating: '4.3',
       vehicle: 'Eco EV Express • Hot Thermal Bag',

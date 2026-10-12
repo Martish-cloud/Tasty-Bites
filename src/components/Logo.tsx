@@ -7,7 +7,7 @@ interface LogoProps {
   onClick?: () => void;
 }
 
-export const Logo: React.FC<LogoProps> = ({ size = 'md', onClick }) => {
+export const Logo: React.FC<LogoProps> = ({ size = 'md', showSubtitle = true, onClick }) => {
   const isLarge = size === 'lg';
 
   return (
@@ -30,9 +30,14 @@ export const Logo: React.FC<LogoProps> = ({ size = 'md', onClick }) => {
       <div className="flex flex-col text-left">
         <div className="flex items-center">
           <span className={`font-extrabold tracking-tight text-white ${isLarge ? 'text-2xl' : 'text-xl'}`}>
-            Tasty<span className="text-amber-500">BItes</span>
+            Tasty<span className="text-amber-500">Bites</span>
           </span>
         </div>
+        {showSubtitle && (
+          <span className="text-[9.5px] sm:text-[10.5px] text-neutral-400 font-medium tracking-normal -mt-0.5">
+            Good Food Brings People Together
+          </span>
+        )}
       </div>
     </div>
   );

@@ -34,7 +34,7 @@ export const ComboOffersPage: React.FC<ComboOffersPageProps> = ({ onBackToHome }
             className="inline-flex items-center gap-1.5 text-xs font-bold text-neutral-600 hover:text-neutral-950 transition-colors cursor-pointer group"
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            <span>Back to TastyBItes Home</span>
+            <span>Back to TastyBites Home</span>
           </button>
         </div>
 
@@ -45,7 +45,7 @@ export const ComboOffersPage: React.FC<ComboOffersPageProps> = ({ onBackToHome }
             CURATED VALUE FEASTS
           </div>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-neutral-900 tracking-tight">
-            TastyBItes Combo Offers
+            Tasty Bites Combo Offers
           </h1>
           <p className="text-neutral-500 text-xs sm:text-sm mt-1.5 max-w-2xl leading-relaxed">
             More flavour, more variety, and better value. Find your favourite food combinations in one place. Handcrafted with fresh artisanal ingredients.

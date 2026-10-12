@@ -14,7 +14,7 @@ export const DEMO_TRACKING_CONFIG = {
 };
 
 export const DEMO_RIDER_INFO = {
-  name: 'TastyBItes Partner',
+  name: 'TastyBites Partner',
   role: 'Partner',
   rating: '★ 4.3',
   deliveries: '1,420+ completed',
@@ -58,7 +58,7 @@ export function computeTrackingState(createdAt: string): ComputedTrackingState {
       status: 'accepted',
       stageIndex: 1,
       stageName: 'Restaurant Accepted',
-      stageDescription: 'TastyBItes head chef accepted order slip & allocated kitchen workstation.',
+      stageDescription: 'TastyBites head chef accepted order slip & allocated kitchen workstation.',
       elapsedSeconds,
       secondsRemainingInStage: t2 - elapsedSeconds,
       isDelivered: false,
@@ -78,7 +78,7 @@ export function computeTrackingState(createdAt: string): ComputedTrackingState {
       status: 'out_for_delivery',
       stageIndex: 3,
       stageName: 'Delivery Partner Assigned • Out for Delivery',
-      stageDescription: 'TastyBItes delivery partner has collected the insulated thermal bag.',
+      stageDescription: 'TastyBites delivery partner has collected the insulated thermal bag.',
       elapsedSeconds,
       secondsRemainingInStage: t4 - elapsedSeconds,
       isDelivered: false,

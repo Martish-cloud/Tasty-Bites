@@ -155,13 +155,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setCurrentRoute(route);
     if (route === 'reviews') {
       window.history.pushState(null, '', '/reviews');
-      document.title = 'Customer Reviews & Ratings | TastyBItes';
+      document.title = 'Customer Reviews & Ratings | TastyBites';
     } else if (route === 'combo-offers') {
       window.history.pushState(null, '', '/combo-offers');
-      document.title = 'Combo Offers | TastyBItes';
+      document.title = 'Combo Offers | TastyBites';
     } else {
       window.history.pushState(null, '', '/');
-      document.title = 'TastyBItes';
+      document.title = 'TastyBites';
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -181,13 +181,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       if (path.includes('reviews') || hash.includes('reviews')) {
         setCurrentRoute('reviews');
-        document.title = 'Customer Reviews & Ratings | TastyBItes';
+        document.title = 'Customer Reviews & Ratings | TastyBites';
       } else if (path.includes('combo-offers') || hash.includes('combo-offers') || hash.includes('combos')) {
         setCurrentRoute('combo-offers');
-        document.title = 'Combo Offers | TastyBItes';
+        document.title = 'Combo Offers | TastyBites';
       } else {
         setCurrentRoute('home');
-        document.title = 'TastyBItes';
+        document.title = 'TastyBites';
       }
 
       if (hash === '#staff-portal') {
