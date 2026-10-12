@@ -151,13 +151,18 @@ export const FullMenuModal: React.FC = () => {
               <button
                 key={cat.id}
                 onClick={() => setSelectedCat(cat.id)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition cursor-pointer ${
+                className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition cursor-pointer flex items-center gap-1.5 ${
                   selectedCat === cat.id
                     ? 'bg-amber-500 text-neutral-950 shadow-xs'
                     : 'bg-white border border-neutral-200 text-neutral-700 hover:border-neutral-300'
                 }`}
               >
-                {cat.icon} {cat.name}
+                {cat.image ? (
+                  <img src={cat.image} alt={cat.name} className="w-4 h-4 rounded-full object-cover" />
+                ) : (
+                  <span>{cat.icon}</span>
+                )}
+                <span>{cat.name}</span>
               </button>
             ))}
           </div>

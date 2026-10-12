@@ -23,7 +23,7 @@ export const SECTION_1_VIDEOS: VideoItem[] = [
     title: 'TastyBites Brand Story: The Art of Good Food',
     category: 'Commercial Showcase',
     src: '/Videos/Sec 1/Commercial_advertisement.mp4',
-    poster: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80',
+    poster: '/Videos/Sec 1/thumb_commercial.jpg',
     badge: '★ Brand Anthem',
     badgeColor: 'bg-amber-500 text-neutral-950',
     description: 'A cinematic look into our kitchen philosophy — farm-fresh sourcing, wood-fired hearths, and handcrafted joy.',
@@ -36,38 +36,38 @@ export const SECTION_1_VIDEOS: VideoItem[] = [
     title: 'Sizzling Gourmet Fire-Grilled Chicken',
     category: 'Flame Grill',
     src: '/Videos/Sec 1/Grilled_chicken_food.mp4',
-    poster: 'https://images.unsplash.com/photo-1532550907401-a500c9a57435?auto=format&fit=crop&w=800&q=80',
+    poster: '/Videos/Sec 1/thumb_grilled_chicken.jpg',
     badge: '🔥 Live Flame',
     badgeColor: 'bg-red-500 text-white',
     description: 'Charcoal grilled to perfection with rosemary garlic basting and spiced herb glaze.',
-    associatedProductId: 'tandoori-platter',
-    dishName: 'Royal Tandoori Platter',
-    price: 349,
+    associatedProductId: 'grilled-chicken',
+    dishName: 'Charcoal Grilled Chicken',
+    price: 299,
   },
   {
     id: 'mango-smoothie',
     title: 'Cold-Pressed Mango Banana Artisanal Smoothie',
     category: 'Chilled Coolers',
     src: '/Videos/Sec 1/Mango_banana_smoothie.mp4',
-    poster: 'https://images.unsplash.com/photo-1546173159-315724a31696?auto=format&fit=crop&w=800&q=80',
+    poster: '/Videos/Sec 1/thumb_mango_smoothie.jpg',
     badge: '🥭 Farm Fresh',
     badgeColor: 'bg-yellow-500 text-neutral-950',
     description: 'Pure Alphonso mango pulp blended with Cavendish bananas, organic honey, and chilled oat milk.',
-    associatedProductId: 'mango-smoothie',
-    dishName: 'Fresh Mango Banana Smoothie',
-    price: 129,
+    associatedProductId: 'mango-velvet-smoothie',
+    dishName: 'Alphonso Mango Velvet Smoothie',
+    price: 139,
   },
   {
     id: 'hakka-noodles',
     title: 'Master Wok Tossing Hakka Noodles in Flame',
     category: 'Wok Specialties',
     src: '/Videos/Sec 1/Wok_tossing_Hakka_noodles.mp4',
-    poster: 'https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=800&q=80',
+    poster: '/Videos/Sec 1/thumb_hakka_noodles.jpg',
     badge: '🥡 High Wok Sear',
     badgeColor: 'bg-orange-500 text-white',
     description: 'Springy hand-pulled egg noodles flash-tossed in high flame woks with crisp peppers and secret Schezwan oil.',
-    associatedProductId: 'hakka-noodles',
-    dishName: 'Spicy Hakka Noodles',
+    associatedProductId: 'chilli-garlic-noodles',
+    dishName: 'Chilli Garlic Hakka Noodles',
     price: 189,
   },
 ];
@@ -128,10 +128,14 @@ export const Section1VideoShowcase: React.FC = () => {
   };
 
   const handleSelectVideo = (item: VideoItem) => {
+    if (selectedVideo.id === item.id) return;
     setSelectedVideo(item);
     setIsPlaying(true);
     if (mainVideoRef.current) {
+      mainVideoRef.current.pause();
+      mainVideoRef.current.poster = item.poster;
       mainVideoRef.current.src = item.src;
+      mainVideoRef.current.load();
       mainVideoRef.current.play().catch(() => {});
     }
   };
@@ -341,17 +345,15 @@ export const Section1VideoShowcase: React.FC = () => {
                       : 'bg-neutral-900/60 border-neutral-800 hover:bg-neutral-800/70 hover:border-neutral-700'
                   }`}
                 >
-                  {/* Video Thumbnail Mini Player */}
-                  <div className="relative w-28 h-20 rounded-xl overflow-hidden bg-black shrink-0 border border-neutral-700/60">
-                    <video
-                      src={item.src}
-                      poster={item.poster}
-                      muted
-                      loop
-                      playsInline
+                  {/* Video Thumbnail Image */}
+                  <div className="relative w-28 h-20 rounded-xl overflow-hidden bg-neutral-950 shrink-0 border border-neutral-700/60 shadow-xs">
+                    <img
+                      src={item.poster}
+                      alt={item.title}
                       className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500"
+                      loading="lazy"
                     />
-                    <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/10 transition-colors">
+                    <div className="absolute inset-0 bg-black/25 flex items-center justify-center group-hover:bg-black/10 transition-colors">
                       <div className="w-7 h-7 rounded-full bg-amber-500/90 text-neutral-950 flex items-center justify-center shadow-md">
                         <Play className="w-3 h-3 fill-current ml-0.5" />
                       </div>

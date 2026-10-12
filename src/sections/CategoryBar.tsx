@@ -19,79 +19,33 @@ export const CategoryBar: React.FC = () => {
     }
   };
 
-  // Custom visual food emoji/icons matching reference
-  const getCategoryVisual = (id: CategoryId) => {
-    switch (id) {
-      case 'burgers':
-        return (
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-orange-50 text-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-            🍔
-          </div>
-        );
-      case 'pizza':
-        return (
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-red-50 text-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-            🍕
-          </div>
-        );
-      case 'indian':
-        return (
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-50 text-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-            🍛
-          </div>
-        );
-      case 'chinese':
-        return (
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-red-50 text-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-            🥡
-          </div>
-        );
-      case 'continental':
-        return (
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-yellow-50 text-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-            🍝
-          </div>
-        );
-      case 'salads':
-        return (
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-emerald-50 text-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-            🥗
-          </div>
-        );
-      case 'desserts':
-        return (
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-pink-50 text-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-            🧁
-          </div>
-        );
-      case 'beverages':
-        return (
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-blue-50 text-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-            🥤
-          </div>
-        );
-    }
-  };
-
   return (
     <section className="relative z-20 max-w-7xl mx-auto px-4 sm:px-8 -mt-6 sm:-mt-8 mb-8">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
         {/* Left Side: 8 Food Categories Strip (8 or 9 cols on desktop) */}
         <div className="lg:col-span-8 xl:col-span-9 bg-white rounded-2xl p-2.5 sm:p-3.5 shadow-xl shadow-black/5 border border-neutral-100 flex items-center">
-          <div className="w-full flex items-center justify-between overflow-x-auto no-scrollbar gap-2 sm:gap-4 px-1">
+          <div className="w-full flex items-center justify-between overflow-x-auto no-scrollbar gap-2 sm:gap-3 px-1">
             {CATEGORIES.map((cat) => {
               const isActive = activeCategory === cat.id;
+              const imageSrc = cat.image || `/categories/${cat.id === 'salads' ? 'salad' : cat.id === 'desserts' ? 'dessert' : cat.id === 'beverages' ? 'beverage' : cat.id === 'burgers' ? 'burger' : cat.id}.jpg`;
               return (
                 <button
                   key={cat.id}
                   onClick={() => handleCategorySelect(cat.id)}
-                  className={`flex flex-col items-center justify-center min-w-[70px] sm:min-w-[84px] py-2 px-1.5 rounded-xl transition-all cursor-pointer group select-none ${
+                  className={`flex flex-col items-center justify-center min-w-[72px] sm:min-w-[84px] py-2 px-1.5 rounded-2xl transition-all duration-200 cursor-pointer group select-none ${
                     isActive
-                      ? 'bg-amber-50/90 text-amber-900 ring-2 ring-amber-400 font-bold shadow-xs'
+                      ? 'bg-amber-50 text-amber-900 ring-2 ring-amber-400 font-bold shadow-xs'
                       : 'hover:bg-neutral-50 text-neutral-700 font-medium'
                   }`}
                 >
-                  <div className="mb-1.5">{getCategoryVisual(cat.id)}</div>
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl overflow-hidden bg-white p-1 flex items-center justify-center shadow-xs border border-neutral-100/80 group-hover:scale-108 group-hover:-translate-y-0.5 group-hover:shadow-md transition-all duration-300 mb-1.5">
+                    <img
+                      src={imageSrc}
+                      alt={cat.name}
+                      className="w-full h-full object-contain"
+                      loading="lazy"
+                    />
+                  </div>
                   <span className={`text-xs tracking-tight transition-colors ${isActive ? 'text-amber-800' : 'group-hover:text-amber-600'}`}>
                     {cat.name}
                   </span>

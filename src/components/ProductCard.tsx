@@ -25,11 +25,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, compact = fal
     <div
       onClick={handleCardClick}
       className={`bg-white rounded-2xl border border-neutral-100 shadow-xs hover:shadow-lg hover:border-amber-200 transition-all duration-300 ${
-        compact ? 'p-2.5' : 'p-3'
+        compact ? 'p-2 sm:p-2.5' : 'p-3'
       } flex flex-col justify-between group cursor-pointer text-left relative overflow-hidden`}
     >
       {/* Top Image Container */}
-      <div className="relative w-full aspect-[16/11] rounded-xl overflow-hidden bg-neutral-100 mb-2.5">
+      <div className={`relative w-full ${compact ? 'aspect-[4/3] mb-1.5' : 'aspect-[16/11] mb-2.5'} rounded-xl overflow-hidden bg-neutral-100`}>
         <img
           src={product.image}
           alt={product.name}
@@ -38,14 +38,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, compact = fal
         />
 
         {/* Dietary Veg / Non-Veg Indicator */}
-        <div className="absolute top-2 left-2 z-10 bg-white/90 backdrop-blur-xs p-1 rounded-md shadow-xs flex items-center justify-center">
+        <div className="absolute top-1.5 left-1.5 z-10 bg-white/90 backdrop-blur-xs p-0.5 sm:p-1 rounded-md shadow-xs flex items-center justify-center">
           <div
-            className={`w-3 h-3 border flex items-center justify-center p-0.5 ${
+            className={`w-2.5 h-2.5 sm:w-3 sm:h-3 border flex items-center justify-center p-0.5 ${
               product.isVeg ? 'border-emerald-600' : 'border-rose-600'
             }`}
           >
             <div
-              className={`w-1.5 h-1.5 rounded-full ${
+              className={`w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full ${
                 product.isVeg ? 'bg-emerald-600' : 'bg-rose-600'
               }`}
             />
@@ -59,18 +59,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, compact = fal
             toggleWishlist(product);
           }}
           aria-label={isFavorite ? 'Remove from wishlist' : 'Add to wishlist'}
-          className={`absolute top-2 right-2 z-10 w-6.5 h-6.5 rounded-full flex items-center justify-center backdrop-blur-md transition-all cursor-pointer shadow-xs ${
+          className={`absolute top-1.5 right-1.5 z-10 w-6 h-6 rounded-full flex items-center justify-center backdrop-blur-md transition-all cursor-pointer shadow-xs ${
             isFavorite
               ? 'bg-rose-50 text-rose-500 fill-rose-500 scale-105'
               : 'bg-white/85 text-neutral-600 hover:text-rose-500 hover:bg-white'
           }`}
         >
-          <Heart className={`w-3.5 h-3.5 ${isFavorite ? 'fill-rose-500' : ''}`} />
+          <Heart className={`w-3 h-3 ${isFavorite ? 'fill-rose-500' : ''}`} />
         </button>
 
         {/* Optional Badge */}
         {product.badge && (
-          <span className="absolute bottom-2 left-2 bg-neutral-950/80 text-amber-300 text-[9px] font-bold px-2 py-0.5 rounded backdrop-blur-xs">
+          <span className="absolute bottom-1.5 left-1.5 bg-neutral-950/80 text-amber-300 text-[8.5px] font-bold px-1.5 py-0.2 rounded backdrop-blur-xs">
             {product.badge}
           </span>
         )}
@@ -85,40 +85,42 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, compact = fal
           </h4>
 
           {/* Rating and Delivery time */}
-          <div className="flex items-center gap-1.5 text-[10.5px] text-neutral-500 font-medium mt-1 mb-1.5">
+          <div className={`flex items-center gap-1.5 ${compact ? 'text-[10px] mt-0.5 mb-1' : 'text-[10.5px] mt-1 mb-1.5'} text-neutral-500 font-medium`}>
             <div className="flex items-center gap-0.5 text-amber-600 font-bold">
-              <Star className="w-3 h-3 fill-amber-400 text-amber-500" />
+              <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-amber-400 text-amber-500" />
               <span>{product.rating}</span>
             </div>
             <span className="text-neutral-300">•</span>
             <div className="flex items-center gap-1 text-neutral-500">
-              <Clock className="w-3 h-3 text-neutral-400" />
+              <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-neutral-400" />
               <span>{product.deliveryTime}</span>
             </div>
           </div>
 
-          {/* Short description */}
-          <p className="text-[11px] text-neutral-500 line-clamp-1 leading-relaxed mb-2 font-normal">
-            {product.description}
-          </p>
+          {/* Short description (only in standard mode) */}
+          {!compact && (
+            <p className="text-[11px] text-neutral-500 line-clamp-1 leading-relaxed mb-2 font-normal">
+              {product.description}
+            </p>
+          )}
         </div>
 
         {/* Price & Add to Cart Button */}
-        <div className="pt-2 border-t border-neutral-100 mt-auto">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-sm sm:text-base font-extrabold text-neutral-900">
+        <div className={`${compact ? 'pt-1.5 mt-1' : 'pt-2 mt-auto'} border-t border-neutral-100`}>
+          <div className="flex items-center justify-between mb-1.5">
+            <div className="flex items-baseline gap-1">
+              <span className={`${compact ? 'text-xs sm:text-sm font-black' : 'text-sm sm:text-base font-extrabold'} text-neutral-900`}>
                 ₹{product.price}
               </span>
               {product.originalPrice && (
-                <span className="text-[10.5px] text-neutral-400 line-through">
+                <span className="text-[9.5px] sm:text-[10px] text-neutral-400 line-through">
                   ₹{product.originalPrice}
                 </span>
               )}
             </div>
 
             {product.originalPrice && (
-              <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.2 rounded">
+              <span className="text-[8.5px] font-bold text-emerald-600 bg-emerald-50 px-1 py-0.2 rounded">
                 {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
               </span>
             )}
@@ -130,7 +132,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, compact = fal
               e.stopPropagation();
               addToCart(product);
             }}
-            className={`w-full py-1.5 sm:py-2 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-98 ${
+            className={`w-full ${
+              compact ? 'py-1.5 px-2 text-[11px] sm:text-xs rounded-lg' : 'py-1.5 sm:py-2 px-3 text-xs rounded-xl'
+            } font-bold flex items-center justify-center gap-1 transition-all cursor-pointer shadow-xs active:scale-98 ${
               isAdded
                 ? 'bg-emerald-600 text-white hover:bg-emerald-700'
                 : 'bg-[#e52e2e] text-white hover:bg-[#cc2222] hover:shadow-md hover:shadow-red-600/20'
@@ -138,12 +142,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, compact = fal
           >
             {isAdded ? (
               <>
-                <Check className="w-3.5 h-3.5" />
+                <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 <span>Added ({cartItem?.quantity})</span>
               </>
             ) : (
               <>
-                <Plus className="w-3.5 h-3.5" />
+                <Plus className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 <span>Add to Cart</span>
               </>
             )}

@@ -38,6 +38,7 @@ export interface CategoryInfo {
   id: CategoryId;
   name: string;
   icon: string;
+  image?: string;
   description: string;
 }
 
