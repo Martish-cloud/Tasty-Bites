@@ -172,8 +172,11 @@ export const ProductDetailModal: React.FC = () => {
                   {quantity}
                 </span>
                 <button
-                  onClick={() => setQuantity((q) => q + 1)}
-                  className="px-3 py-2 text-neutral-600 hover:bg-neutral-200 transition cursor-pointer"
+                  onClick={() => setQuantity((q) => Math.min(10, q + 1))}
+                  disabled={quantity >= 10}
+                  className={`px-3 py-2 transition cursor-pointer ${
+                    quantity >= 10 ? 'text-neutral-300 cursor-not-allowed' : 'text-neutral-600 hover:bg-neutral-200'
+                  }`}
                 >
                   <Plus className="w-3.5 h-3.5" />
                 </button>

@@ -49,3 +49,13 @@ export interface PromoCode {
   minOrder: number;
   description: string;
 }
+
+export interface UserProfile {
+  id: string;
+  name: string;
+  phone: string;
+  email?: string;
+  isVerified: boolean;
+  createdAt?: string;
+}
+

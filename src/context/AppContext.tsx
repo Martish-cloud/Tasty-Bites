@@ -1,7 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import type { Product, CartItem, CategoryId, PromoCode } from '../types';
+import type { Product, CartItem, CategoryId, PromoCode, UserProfile } from '../types';
 
 import { PROMO_CODES } from '../data/products';
+
+// Centralized Tax Configuration: GST 18%
+export const TAX_CONFIG = {
+  gstRate: 0.18, // 18% GST (Indian tax rate for restaurant & food supply)
+  ratePercentage: 18,
+  label: 'GST (18%)',
+};
 
 export interface ToastMessage {
   id: string;
@@ -17,6 +24,11 @@ interface AppContextType {
   searchQuery: string;
   appliedPromo: PromoCode | null;
   toasts: ToastMessage[];
+
+  // Customer Authentication
+  currentUser: UserProfile | null;
+  loginWithPhone: (phone: string, name?: string, email?: string) => UserProfile;
+  logout: () => void;
 
   // Modal / Drawer states
   isCartOpen: boolean;
@@ -37,6 +49,7 @@ interface AppContextType {
   tax: number;
   total: number;
   cartCount: number;
+  taxRate: number;
 
   // Actions
   addToCart: (product: Product, quantity?: number) => void;
@@ -94,6 +107,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return saved ? JSON.parse(saved) : { city: 'Bengaluru', pincode: '560001' };
     } catch {
       return { city: 'Bengaluru', pincode: '560001' };
+    }
+  });
+
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => {
+    try {
+      const saved = localStorage.getItem('tastybites_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
     }
   });
 
@@ -157,6 +179,36 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     showToast(`Delivery location set to ${loc.city} (${loc.pincode})`, 'info');
   };
 
+  // Auth Operations
+  const loginWithPhone = (phone: string, name = 'Foodie Customer', email = '') => {
+    const user: UserProfile = {
+      id: `usr_${Date.now()}`,
+      name: name.trim() || 'Foodie Customer',
+      phone: phone.trim(),
+      email: email.trim() || undefined,
+      isVerified: true,
+      createdAt: new Date().toISOString(),
+    };
+    setCurrentUser(user);
+    try {
+      localStorage.setItem('tastybites_user', JSON.stringify(user));
+    } catch (e) {
+      console.error(e);
+    }
+    showToast(`Authenticated as ${user.name} (${user.phone}) ✅`, 'success');
+    return user;
+  };
+
+  const logout = () => {
+    setCurrentUser(null);
+    try {
+      localStorage.removeItem('tastybites_user');
+    } catch (e) {
+      console.error(e);
+    }
+    showToast('Logged out of TastyBites', 'info');
+  };
+
   // Toast helper
   const showToast = (message: string, type: 'success' | 'info' | 'error' = 'success') => {
     const id = Date.now().toString() + Math.random().toString(36).substring(2, 5);
@@ -170,18 +222,34 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // Cart operations
+  // Cart operations (Max 10 units limit per line item, no duplicates)
   const addToCart = (product: Product, quantity = 1) => {
+    let reachedLimit = false;
+    let newTotalQuantity = quantity;
+
     setCart((prev) => {
       const existing = prev.find((item) => item.product.id === product.id);
       if (existing) {
+        if (existing.quantity >= 10) {
+          reachedLimit = true;
+          return prev;
+        }
+        const updatedQty = Math.min(10, existing.quantity + quantity);
+        newTotalQuantity = updatedQty;
         return prev.map((item) =>
-          item.product.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
+          item.product.id === product.id ? { ...item, quantity: updatedQty } : item
         );
       }
-      return [...prev, { product, quantity }];
+      const initialQty = Math.min(10, Math.max(1, quantity));
+      newTotalQuantity = initialQty;
+      return [...prev, { product, quantity: initialQty }];
     });
-    showToast(`Added ${quantity}x "${product.name}" to cart! 🍔`, 'success');
+
+    if (reachedLimit) {
+      showToast(`Maximum limit of 10 reached for "${product.name}"`, 'info');
+    } else {
+      showToast(`Added "${product.name}" to basket! (qty: ${newTotalQuantity}) 🍔`, 'success');
+    }
   };
 
   const removeFromCart = (productId: string) => {
@@ -193,17 +261,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateQuantity = (productId: string, delta: number) => {
-    setCart((prev) =>
-      prev
-        .map((item) => {
-          if (item.product.id === productId) {
-            const newQty = item.quantity + delta;
-            return newQty > 0 ? { ...item, quantity: newQty } : null;
-          }
-          return item;
-        })
-        .filter(Boolean) as CartItem[]
-    );
+    setCart((prev) => {
+      const existing = prev.find((item) => item.product.id === productId);
+      if (!existing) return prev;
+
+      const newQty = existing.quantity + delta;
+      if (newQty > 10) {
+        showToast(`Maximum limit of 10 reached for "${existing.product.name}"`, 'info');
+        return prev;
+      }
+      if (newQty <= 0) {
+        showToast(`Removed "${existing.product.name}" from cart`, 'info');
+        return prev.filter((item) => item.product.id !== productId);
+      }
+      return prev.map((item) =>
+        item.product.id === productId ? { ...item, quantity: newQty } : item
+      );
+    });
   };
 
   const clearCart = () => {
@@ -227,7 +301,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const isInWishlist = (productId: string) => wishlist.includes(productId);
 
-  // Cart calculations
+  // Cart calculations with 18% GST configuration
   const subtotal = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
@@ -244,7 +318,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Delivery fee: ₹40 standard, free over ₹499 or with FREEDEL
   const isFreeDelivery = subtotal >= 499 || appliedPromo?.code === 'FREEDEL';
   const deliveryFee = subtotal === 0 ? 0 : isFreeDelivery ? 0 : 40;
-  const tax = Math.round(subtotal * 0.05); // 5% GST
+  // Centralized 18% GST (Indian GST rate)
+  const tax = Math.round(subtotal * TAX_CONFIG.gstRate);
   const total = Math.max(0, subtotal - discount + deliveryFee + tax);
 
   const applyPromo = (codeStr: string) => {
@@ -279,6 +354,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         searchQuery,
         appliedPromo,
         toasts,
+        currentUser,
+        loginWithPhone,
+        logout,
+        taxRate: TAX_CONFIG.ratePercentage,
         isCartOpen,
         isWishlistOpen,
         isMenuModalOpen,

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, Pause, Volume2, VolumeX, Maximize2, Sparkles, Flame, Plus, Check } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Maximize2, Sparkles, Flame, Plus, Minus } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { PRODUCTS } from '../data/products';
 
@@ -73,7 +73,7 @@ export const SECTION_1_VIDEOS: VideoItem[] = [
 ];
 
 export const Section1VideoShowcase: React.FC = () => {
-  const { addToCart, setIsVideoModalOpen, cart } = useApp();
+  const { addToCart, updateQuantity, showToast, setIsVideoModalOpen, cart } = useApp();
   const [selectedVideo, setSelectedVideo] = useState<VideoItem>(SECTION_1_VIDEOS[0]);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
@@ -160,10 +160,6 @@ export const Section1VideoShowcase: React.FC = () => {
       });
     }
   };
-
-  const isSelectedDishInCart = cart.some(
-    (i) => i.product.id === selectedVideo.associatedProductId
-  );
 
   return (
     <section
@@ -298,32 +294,62 @@ export const Section1VideoShowcase: React.FC = () => {
                 </div>
               </div>
 
-              <button
-                onClick={() =>
-                  handleAddDish(
-                    selectedVideo.associatedProductId,
-                    selectedVideo.dishName,
-                    selectedVideo.price
-                  )
+              {(() => {
+                const videoCartItem = cart.find(
+                  (i) => i.product.id === selectedVideo.associatedProductId
+                );
+                if (videoCartItem) {
+                  return (
+                    <div className="flex items-center bg-neutral-800 border border-neutral-700 rounded-xl px-3 py-1.5 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => updateQuantity(selectedVideo.associatedProductId, -1)}
+                        className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 text-white flex items-center justify-center transition cursor-pointer"
+                        aria-label="Decrease quantity"
+                      >
+                        <Minus className="w-3.5 h-3.5" />
+                      </button>
+                      <span className="font-extrabold text-white text-xs px-1 min-w-[24px] text-center">
+                        {videoCartItem.quantity} in basket
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (videoCartItem.quantity >= 10) {
+                            showToast(`Maximum limit of 10 reached for this item`, 'info');
+                          } else {
+                            updateQuantity(selectedVideo.associatedProductId, 1);
+                          }
+                        }}
+                        disabled={videoCartItem.quantity >= 10}
+                        className={`w-7 h-7 rounded-lg bg-neutral-700 flex items-center justify-center transition cursor-pointer ${
+                          videoCartItem.quantity >= 10
+                            ? 'opacity-40 cursor-not-allowed text-neutral-500'
+                            : 'hover:bg-neutral-600 text-white'
+                        }`}
+                        aria-label="Increase quantity"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  );
                 }
-                className={`w-full sm:w-auto px-5 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer ${
-                  isSelectedDishInCart
-                    ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                    : 'bg-[#e52e2e] hover:bg-[#cc2222] text-white shadow-lg shadow-red-900/30'
-                }`}
-              >
-                {isSelectedDishInCart ? (
-                  <>
-                    <Check className="w-4 h-4" />
-                    <span>Added to Basket</span>
-                  </>
-                ) : (
-                  <>
+                return (
+                  <button
+                    onClick={() =>
+                      handleAddDish(
+                        selectedVideo.associatedProductId,
+                        selectedVideo.dishName,
+                        selectedVideo.price
+                      )
+                    }
+                    className="w-full sm:w-auto px-5 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer bg-[#e52e2e] hover:bg-[#cc2222] text-white shadow-lg shadow-red-900/30"
+                  >
                     <Plus className="w-4 h-4" />
                     <span>Order This Dish (₹{selectedVideo.price})</span>
-                  </>
-                )}
-              </button>
+                  </button>
+                );
+              })()}
             </div>
           </div>
 

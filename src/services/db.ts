@@ -317,6 +317,8 @@ export interface CreateOrderParams {
   items: Array<{ productId: string; quantity: number }>;
   promoCode?: string;
   paymentMethod: PaymentMethod;
+  paymentStatus?: PaymentStatus;
+  paymentId?: string;
 }
 
 export function createDBOrder(params: CreateOrderParams): { success: boolean; order?: Order; error?: string } {
@@ -334,13 +336,15 @@ export function createDBOrder(params: CreateOrderParams): { success: boolean; or
     if (!prod) {
       return { success: false, error: `Product ID "${reqItem.productId}" is not available.` };
     }
-    const lineTotal = prod.price * reqItem.quantity;
+    // Enforce 1-10 quantity limits
+    const validQty = Math.min(10, Math.max(1, reqItem.quantity));
+    const lineTotal = prod.price * validQty;
     subtotal += lineTotal;
     itemSnapshots.push({
       productId: prod.id,
       name: prod.name,
       price: prod.price,
-      quantity: reqItem.quantity,
+      quantity: validQty,
       image: prod.image,
       isVeg: Boolean(prod.isVeg),
       lineTotal,
@@ -360,10 +364,11 @@ export function createDBOrder(params: CreateOrderParams): { success: boolean; or
     }
   }
 
-  // Delivery fee: ₹40, or free if >= 499
+  // Delivery fee: ₹40, or free if >= 499 or FREEDEL
   const isFreeDelivery = subtotal >= 499 || params.promoCode === 'FREEDEL';
-  const deliveryFee = isFreeDelivery ? 0 : 40;
-  const tax = Math.round(subtotal * 0.05); // 5% GST
+  const deliveryFee = subtotal === 0 ? 0 : isFreeDelivery ? 0 : 40;
+  // Centralized tax calculation: 18% GST (Indian tax rate for restaurant supply)
+  const tax = Math.round(subtotal * 0.18);
   const total = Math.max(0, subtotal - discount + deliveryFee + tax);
 
   // Generate unique order ID and tracking token
@@ -373,6 +378,13 @@ export function createDBOrder(params: CreateOrderParams): { success: boolean; or
   const trackingToken = `tk_${Math.random().toString(36).substring(2, 12)}`;
 
   const now = new Date().toISOString();
+  const isOnlinePayment = params.paymentMethod === 'razorpay' || params.paymentMethod === 'upi' || params.paymentMethod === 'card';
+  const paymentStatus: PaymentStatus = params.paymentStatus 
+    ? params.paymentStatus 
+    : isOnlinePayment 
+      ? 'paid' 
+      : 'pending';
+
   const newOrder: Order = {
     id: orderId,
     orderNumber,
@@ -387,15 +399,15 @@ export function createDBOrder(params: CreateOrderParams): { success: boolean; or
     total,
     promoCode: params.promoCode,
     paymentMethod: params.paymentMethod,
-    paymentStatus: params.paymentMethod === 'cod' ? 'pending' : 'paid',
-    paymentId: params.paymentMethod === 'cod' ? undefined : `pay_RAZOR_${randomSuffix}`,
+    paymentStatus,
+    paymentId: params.paymentId || (isOnlinePayment && paymentStatus === 'paid' ? `pay_RAZOR_${randomSuffix}` : undefined),
     orderStatus: 'placed',
     estimatedDeliveryMinutes: 25,
     statusHistory: [
       {
         status: 'placed',
         timestamp: now,
-        note: `Order #${orderNumber} placed successfully via ${params.paymentMethod.toUpperCase()}.`,
+        note: `Order #${orderNumber} placed via ${params.paymentMethod.toUpperCase()} (${paymentStatus === 'paid' ? 'Payment Verified' : 'Payment on Delivery'}).`,
         updatedBy: 'Order System',
       },
     ],

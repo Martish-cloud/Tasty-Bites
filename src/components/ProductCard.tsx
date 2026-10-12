@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, Clock, Heart, Plus, Check } from 'lucide-react';
+import { Star, Clock, Heart, Plus, Minus } from 'lucide-react';
 import type { Product } from '../types';
 import { useApp } from '../context/AppContext';
 
@@ -9,7 +9,8 @@ interface ProductCardProps {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product, compact = false }) => {
-  const { addToCart, toggleWishlist, isInWishlist, setSelectedProduct, cart } = useApp();
+  const { addToCart, updateQuantity, toggleWishlist, isInWishlist, setSelectedProduct, cart, showToast } =
+    useApp();
 
   const isFavorite = isInWishlist(product.id);
   const cartItem = cart.find((i) => i.product.id === product.id);
@@ -105,7 +106,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, compact = fal
           )}
         </div>
 
-        {/* Price & Add to Cart Button */}
+        {/* Price & Add to Cart Controls */}
         <div className={`${compact ? 'pt-1.5 mt-1' : 'pt-2 mt-auto'} border-t border-neutral-100`}>
           <div className="flex items-center justify-between mb-1.5">
             <div className="flex items-baseline gap-1">
@@ -126,32 +127,69 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, compact = fal
             )}
           </div>
 
-          {/* Add to Cart Button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              addToCart(product);
-            }}
-            className={`w-full ${
-              compact ? 'py-1.5 px-2 text-[11px] sm:text-xs rounded-lg' : 'py-1.5 sm:py-2 px-3 text-xs rounded-xl'
-            } font-bold flex items-center justify-center gap-1 transition-all cursor-pointer shadow-xs active:scale-98 ${
-              isAdded
-                ? 'bg-emerald-600 text-white hover:bg-emerald-700'
-                : 'bg-[#e52e2e] text-white hover:bg-[#cc2222] hover:shadow-md hover:shadow-red-600/20'
-            }`}
-          >
-            {isAdded ? (
-              <>
-                <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                <span>Added ({cartItem?.quantity})</span>
-              </>
-            ) : (
-              <>
+          {/* Action: Add to Cart or [ - ] [ Quantity ] [ + ] Stepper */}
+          {isAdded && cartItem ? (
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className={`w-full ${
+                compact ? 'py-1 px-1 rounded-lg' : 'py-1 px-1.5 rounded-xl'
+              } bg-amber-50 border border-amber-300 flex items-center justify-between text-neutral-900 shadow-2xs`}
+            >
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  updateQuantity(product.id, -1);
+                }}
+                aria-label={`Decrease ${product.name} quantity`}
+                className="w-6 h-6 sm:w-7 sm:h-7 rounded-md bg-white border border-amber-200 text-neutral-800 hover:bg-amber-100 hover:text-red-600 flex items-center justify-center transition cursor-pointer active:scale-95 shadow-2xs"
+              >
+                <Minus className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              </button>
+
+              <div className="flex items-center gap-1">
+                <span className="font-black text-xs sm:text-sm text-neutral-900 px-1.5 min-w-[20px] text-center">
+                  {cartItem.quantity}
+                </span>
+                <span className="text-[9.5px] text-amber-800/80 font-medium hidden sm:inline">in basket</span>
+              </div>
+
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (cartItem.quantity >= 10) {
+                    showToast(`Maximum limit of 10 reached for "${product.name}"`, 'info');
+                  } else {
+                    updateQuantity(product.id, 1);
+                  }
+                }}
+                aria-label={`Increase ${product.name} quantity`}
+                disabled={cartItem.quantity >= 10}
+                className={`w-6 h-6 sm:w-7 sm:h-7 rounded-md bg-white border border-amber-200 flex items-center justify-center transition cursor-pointer active:scale-95 shadow-2xs ${
+                  cartItem.quantity >= 10
+                    ? 'opacity-40 cursor-not-allowed text-neutral-400'
+                    : 'text-neutral-800 hover:bg-amber-100 hover:text-emerald-700'
+                }`}
+              >
                 <Plus className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                <span>Add to Cart</span>
-              </>
-            )}
-          </button>
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                addToCart(product);
+              }}
+              className={`w-full ${
+                compact ? 'py-1.5 px-2 text-[11px] sm:text-xs rounded-lg' : 'py-1.5 sm:py-2 px-3 text-xs rounded-xl'
+              } font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-98 bg-[#e52e2e] text-white hover:bg-[#cc2222] hover:shadow-md hover:shadow-red-600/20`}
+            >
+              <Plus className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span>Add to Cart</span>
+            </button>
+          )}
         </div>
       </div>
     </div>
