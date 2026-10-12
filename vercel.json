@@ -12,6 +12,14 @@
     {
       "source": "/images/:path*",
       "destination": "/Images/:path*"
+    },
+    {
+      "source": "/reviews",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/combo-offers",
+      "destination": "/index.html"
     }
   ]
 }

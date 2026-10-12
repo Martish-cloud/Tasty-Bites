@@ -39,6 +39,9 @@ interface AppContextType {
   trackingOrderNumber: string | null;
   setTrackingOrderNumber: (orderNumber: string | null) => void;
   openOrderTracking: (orderNumber?: string) => void;
+  currentRoute: 'home' | 'reviews' | 'combo-offers';
+  setCurrentRoute: (route: 'home' | 'reviews' | 'combo-offers') => void;
+  navigateTo: (route: 'home' | 'reviews' | 'combo-offers') => void;
   isLocationModalOpen: boolean;
   isOffersModalOpen: boolean;
   isAuthModalOpen: boolean;
@@ -140,6 +143,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
+  const [currentRoute, setCurrentRoute] = useState<'home' | 'reviews' | 'combo-offers'>(() => {
+    const path = window.location.pathname.toLowerCase();
+    const hash = window.location.hash.toLowerCase();
+    if (path.includes('reviews') || hash.includes('reviews')) return 'reviews';
+    if (path.includes('combo-offers') || hash.includes('combo-offers') || hash.includes('combos')) return 'combo-offers';
+    return 'home';
+  });
+
+  const navigateTo = (route: 'home' | 'reviews' | 'combo-offers') => {
+    setCurrentRoute(route);
+    if (route === 'reviews') {
+      window.history.pushState(null, '', '/reviews');
+    } else if (route === 'combo-offers') {
+      window.history.pushState(null, '', '/combo-offers');
+    } else {
+      window.history.pushState(null, '', '/');
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const openOrderTracking = (orderNumber?: string) => {
     if (orderNumber) {
       setTrackingOrderNumber(orderNumber);
@@ -147,10 +170,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsTrackOrderOpen(true);
   };
 
-  // URL Hash Listener for deep-linking (#admin, #track-order, etc.)
+  // URL Pathname and Hash Listener for routing & deep-linking
   useEffect(() => {
-    const handleHash = () => {
+    const handleLocationChange = () => {
+      const path = window.location.pathname.toLowerCase();
       const hash = window.location.hash.toLowerCase();
+
+      if (path.includes('reviews') || hash.includes('reviews')) {
+        setCurrentRoute('reviews');
+      } else if (path.includes('combo-offers') || hash.includes('combo-offers') || hash.includes('combos')) {
+        setCurrentRoute('combo-offers');
+      } else {
+        setCurrentRoute('home');
+      }
+
       if (hash === '#staff-portal') {
         setIsAdminOpen(true);
       }
@@ -162,9 +195,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsTrackOrderOpen(true);
       }
     };
-    handleHash();
-    window.addEventListener('hashchange', handleHash);
-    return () => window.removeEventListener('hashchange', handleHash);
+
+    handleLocationChange();
+    window.addEventListener('popstate', handleLocationChange);
+    window.addEventListener('hashchange', handleLocationChange);
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange);
+      window.removeEventListener('hashchange', handleLocationChange);
+    };
   }, []);
 
   // Sync to LocalStorage
@@ -381,6 +419,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         trackingOrderNumber,
         setTrackingOrderNumber,
         openOrderTracking,
+        currentRoute,
+        setCurrentRoute,
+        navigateTo,
         isLocationModalOpen,
         isOffersModalOpen,
         isAuthModalOpen,

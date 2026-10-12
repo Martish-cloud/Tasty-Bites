@@ -50,8 +50,11 @@ export const BrandStorySection: React.FC = () => {
           <div className="lg:col-span-5 relative">
             <div className="relative rounded-3xl overflow-hidden border border-neutral-700/80 shadow-2xl bg-neutral-900 aspect-[4/3]">
               <img
-                src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1000&q=80"
-                alt="TastyBites master chefs plating gourmet dishes"
+                src="/Images/TastyBites Burger Cafe at Dusk.png"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = '/Images/TastyBites Burger Café at Dusk.png';
+                }}
+                alt="TastyBites Burger Café at Dusk"
                 className="w-full h-full object-cover"
                 loading="lazy"
               />

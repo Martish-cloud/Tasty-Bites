@@ -250,7 +250,15 @@ function saveToStorage<T>(key: string, data: T): void {
 // ==========================================
 
 export function getDBProducts(): Product[] {
-  return loadFromStorage<Product[]>(PRODUCTS_KEY, INITIAL_PRODUCTS);
+  const loaded = loadFromStorage<Product[]>(PRODUCTS_KEY, INITIAL_PRODUCTS);
+  const existingIds = new Set(loaded.map((p) => p.id));
+  const missing = INITIAL_PRODUCTS.filter((p) => !existingIds.has(p.id));
+  if (missing.length > 0) {
+    const merged = [...missing, ...loaded];
+    saveToStorage(PRODUCTS_KEY, merged);
+    return merged;
+  }
+  return loaded;
 }
 
 export function getDBProductById(id: string): Product | undefined {
@@ -588,3 +596,186 @@ export function addAuditLog(action: string, details: string, performedBy: string
   };
   saveToStorage(AUDIT_KEY, [newLog, ...current.slice(0, 49)]); // keep latest 50
 }
+
+// ==========================================
+// Customer Reviews & Ratings System
+// ==========================================
+
+export interface Review {
+  id: string;
+  name: string;
+  avatar: string;
+  rating: number; // 1 to 5
+  comment: string;
+  date: string;
+  isVerifiedPurchase: boolean;
+  orderNumber?: string;
+  isSample?: boolean;
+  createdAt: string;
+}
+
+export interface CreateReviewParams {
+  name: string;
+  rating: number;
+  comment: string;
+  avatar?: string;
+  orderNumber?: string;
+}
+
+const REVIEWS_KEY = 'tastybites_db_reviews';
+
+export const INITIAL_REVIEWS: Review[] = [
+  {
+    id: 'rev-sample-1',
+    name: 'Pooja Mehra',
+    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80',
+    rating: 5,
+    comment: 'The Taco Chicken Mexican is ridiculously fresh! Crispy shells, perfectly charred chicken, and chipotle crema with just the right kick. Delivered hot in 20 minutes.',
+    date: '2 days ago',
+    isVerifiedPurchase: true,
+    orderNumber: 'TB-842910',
+    isSample: true,
+    createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
+  },
+  {
+    id: 'rev-sample-2',
+    name: 'Karan Deshmukh',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80',
+    rating: 5,
+    comment: 'The Classic Burger & Fries combo is the best value in town. Brioche bun was fluffy, patty was juicy, and thermal packaging kept it warm. The live tracking demo is fantastic.',
+    date: '3 days ago',
+    isVerifiedPurchase: true,
+    orderNumber: 'TB-620194',
+    isSample: true,
+    createdAt: new Date(Date.now() - 3 * 86400000).toISOString(),
+  },
+  {
+    id: 'rev-sample-3',
+    name: 'Ananya Sen',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
+    rating: 4,
+    comment: 'Authentic Neapolitan Margherita Pizza. Loved the fresh basil and Fior di Latte mozzarella. Crust had lovely wood-fired leopard spots. Will definitely order again!',
+    date: '5 days ago',
+    isVerifiedPurchase: false,
+    isSample: true,
+    createdAt: new Date(Date.now() - 5 * 86400000).toISOString(),
+  },
+  {
+    id: 'rev-sample-4',
+    name: 'Vikramaditya Roy',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80',
+    rating: 5,
+    comment: 'The Dal Makhani reminds me of historic dhabas in Amritsar. Velvety texture, slow-simmered with white butter. Packed in leak-proof sealed containers.',
+    date: '1 week ago',
+    isVerifiedPurchase: true,
+    orderNumber: 'TB-418823',
+    isSample: true,
+    createdAt: new Date(Date.now() - 7 * 86400000).toISOString(),
+  },
+  {
+    id: 'rev-sample-5',
+    name: 'Sneha Nambiar',
+    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80',
+    rating: 5,
+    comment: 'Belgian Chocolate shake was perfection — pure dark cacao richness without artificial sweetness. Paired delightfully with the Truffle Mushroom Swiss Burger.',
+    date: '1 week ago',
+    isVerifiedPurchase: false,
+    isSample: true,
+    createdAt: new Date(Date.now() - 8 * 86400000).toISOString(),
+  },
+  {
+    id: 'rev-sample-6',
+    name: 'Rajesh Nair',
+    avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=120&q=80',
+    rating: 4,
+    comment: 'Quick express dispatch and clean eco packaging. The Kung Pao Chicken had genuine Sichuan peppers with bold aroma. Excellent restaurant-grade meal at home.',
+    date: '2 weeks ago',
+    isVerifiedPurchase: false,
+    isSample: true,
+    createdAt: new Date(Date.now() - 14 * 86400000).toISOString(),
+  },
+];
+
+export function getDBReviews(): Review[] {
+  return loadFromStorage<Review[]>(REVIEWS_KEY, INITIAL_REVIEWS);
+}
+
+export function createDBReview(params: CreateReviewParams): { success: boolean; review?: Review; error?: string } {
+  const name = params.name.trim();
+  if (!name || name.length < 2) {
+    return { success: false, error: 'Please enter a valid display name (at least 2 characters).' };
+  }
+
+  const rating = Math.round(params.rating);
+  if (rating < 1 || rating > 5) {
+    return { success: false, error: 'Rating must be an integer between 1 and 5 stars.' };
+  }
+
+  const comment = params.comment.trim();
+  if (!comment || comment.length < 10) {
+    return { success: false, error: 'Please share at least 10 characters describing your experience.' };
+  }
+
+  // Derive purchase verification authentically from existing orders
+  let isVerified = false;
+  if (params.orderNumber && params.orderNumber.trim()) {
+    const cleanNum = params.orderNumber.trim().toUpperCase();
+    const existingOrder = getDBOrderById(cleanNum);
+    if (existingOrder) {
+      isVerified = true;
+    }
+  }
+
+  const defaultAvatars = [
+    'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80',
+    'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=120&q=80',
+    'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=120&q=80',
+    'https://images.unsplash.com/photo-1628157582853-a796fa650a6a?auto=format&fit=crop&w=120&q=80',
+  ];
+  const chosenAvatar = params.avatar || defaultAvatars[Math.floor(Math.random() * defaultAvatars.length)];
+
+  const now = new Date();
+  const newReview: Review = {
+    id: `rev_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+    name,
+    avatar: chosenAvatar,
+    rating,
+    comment,
+    date: 'Just now',
+    isVerifiedPurchase: isVerified,
+    orderNumber: params.orderNumber ? params.orderNumber.trim().toUpperCase() : undefined,
+    isSample: false,
+    createdAt: now.toISOString(),
+  };
+
+  const current = getDBReviews();
+  const updated = [newReview, ...current];
+  saveToStorage(REVIEWS_KEY, updated);
+
+  addAuditLog(
+    'review_submitted',
+    `New review (${rating}★) posted by ${name}`,
+    name
+  );
+
+  return { success: true, review: newReview };
+}
+
+export function getAverageRating(): { average: number; count: number } {
+  const reviews = getDBReviews();
+  if (reviews.length === 0) return { average: 5.0, count: 0 };
+  const sum = reviews.reduce((acc, r) => acc + r.rating, 0);
+  const avg = Math.round((sum / reviews.length) * 10) / 10;
+  return { average: avg, count: reviews.length };
+}
+
+export function getRatingDistribution(): Record<number, number> {
+  const reviews = getDBReviews();
+  const dist: Record<number, number> = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+  for (const r of reviews) {
+    const clamped = Math.max(1, Math.min(5, Math.round(r.rating)));
+    dist[clamped] = (dist[clamped] || 0) + 1;
+  }
+  return dist;
+}
+

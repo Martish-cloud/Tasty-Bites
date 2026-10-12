@@ -14,6 +14,8 @@ export const Navbar: React.FC = () => {
     setIsMenuModalOpen,
     setIsOffersModalOpen,
     openOrderTracking,
+    currentRoute,
+    navigateTo,
   } = useApp();
 
 
@@ -30,14 +32,30 @@ export const Navbar: React.FC = () => {
   }, []);
 
   const navItems = [
-    { name: 'Home', action: () => { setActiveTab('Home'); window.scrollTo({ top: 0, behavior: 'smooth' }); } },
+    {
+      name: 'Home',
+      action: () => {
+        setActiveTab('Home');
+        navigateTo('home');
+      },
+    },
     {
       name: 'Menu',
       action: () => {
         setActiveTab('Menu');
-        const el = document.getElementById('popular-dishes');
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
-        else setIsMenuModalOpen(true);
+        if (currentRoute !== 'home') navigateTo('home');
+        setTimeout(() => {
+          const el = document.getElementById('popular-dishes');
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+          else setIsMenuModalOpen(true);
+        }, 50);
+      },
+    },
+    {
+      name: 'Combos',
+      action: () => {
+        setActiveTab('Combos');
+        navigateTo('combo-offers');
       },
     },
     {
@@ -48,11 +66,21 @@ export const Navbar: React.FC = () => {
       },
     },
     {
+      name: 'Reviews',
+      action: () => {
+        setActiveTab('Reviews');
+        navigateTo('reviews');
+      },
+    },
+    {
       name: 'Story',
       action: () => {
         setActiveTab('Story');
-        const el = document.getElementById('brand-story');
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
+        if (currentRoute !== 'home') navigateTo('home');
+        setTimeout(() => {
+          const el = document.getElementById('brand-story');
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }, 50);
       },
     },
     {
@@ -66,16 +94,22 @@ export const Navbar: React.FC = () => {
       name: 'FAQ',
       action: () => {
         setActiveTab('FAQ');
-        const el = document.getElementById('faq');
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
+        if (currentRoute !== 'home') navigateTo('home');
+        setTimeout(() => {
+          const el = document.getElementById('faq');
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }, 50);
       },
     },
     {
       name: 'Contact',
       action: () => {
         setActiveTab('Contact');
-        const el = document.getElementById('footer');
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
+        if (currentRoute !== 'home') navigateTo('home');
+        setTimeout(() => {
+          const el = document.getElementById('footer');
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }, 50);
       },
     },
   ];
@@ -93,7 +127,7 @@ export const Navbar: React.FC = () => {
         <Logo
           onClick={() => {
             setActiveTab('Home');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            navigateTo('home');
           }}
         />
 

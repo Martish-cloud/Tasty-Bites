@@ -9,6 +9,7 @@ export const Footer: React.FC = () => {
     setIsMenuModalOpen,
     setIsOffersModalOpen,
     openOrderTracking,
+    navigateTo,
     showToast,
   } = useApp();
 
@@ -32,7 +33,7 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-6 pb-12 border-b border-neutral-800/80 text-left">
           {/* Col 1: Brand (3.5 cols) */}
           <div className="lg:col-span-4 flex flex-col space-y-4">
-            <Logo size="md" />
+            <Logo size="md" onClick={() => navigateTo('home')} />
             <p className="text-xs text-neutral-400 leading-relaxed max-w-sm">
               TastyBites is your go-to destination for delicious food, made with love and the freshest ingredients. Because good food brings people together. ❤️
             </p>
@@ -46,7 +47,7 @@ export const Footer: React.FC = () => {
             <ul className="space-y-2 text-xs text-neutral-400">
               <li>
                 <button
-                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  onClick={() => navigateTo('home')}
                   className="hover:text-amber-400 transition cursor-pointer"
                 >
                   Home
@@ -58,6 +59,22 @@ export const Footer: React.FC = () => {
                   className="hover:text-amber-400 transition cursor-pointer"
                 >
                   Menu
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => navigateTo('combo-offers')}
+                  className="hover:text-amber-400 transition cursor-pointer"
+                >
+                  Combo Offers
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => navigateTo('reviews')}
+                  className="hover:text-amber-400 transition cursor-pointer"
+                >
+                  Reviews
                 </button>
               </li>
               <li>

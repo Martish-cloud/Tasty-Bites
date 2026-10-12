@@ -61,6 +61,27 @@ export const CATEGORIES: CategoryInfo[] = [
 ];
 
 export const PRODUCTS: Product[] = [
+  // Taco Chicken Mexican (New Authentic Product)
+  {
+    id: 'taco-chicken-mexican',
+    name: 'Taco Chicken Mexican',
+    category: 'continental',
+    price: 229,
+    originalPrice: 279,
+    rating: 4.8,
+    reviews: '1.4k',
+    deliveryTime: '20 mins',
+    image: '/Images/Taco Chicken Mexican.png',
+    description: 'Crispy artisanal taco shells loaded with spiced grilled Mexican chicken, zesty tomato salsa, shredded iceberg lettuce, and melted Monterey Jack cheese with chipotle crema.',
+    popular: true,
+    isVeg: false,
+    isSpicy: true,
+    calories: 480,
+    serves: '1 Person',
+    ingredients: ['Corn Taco Shells', 'Spiced Mexican Chicken', 'Tomato Salsa', 'Iceberg Lettuce', 'Monterey Jack Cheese', 'Chipotle Crema'],
+    badge: 'Popular',
+  },
+
   // 1. Classic Burger (Matches reference card 1)
   {
     id: 'classic-burger',
