@@ -1,9 +1,51 @@
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { Flame, ShieldCheck, Clock, Sparkles, ChefHat } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 export const BrandStorySection: React.FC = () => {
   const { setIsMenuModalOpen } = useApp();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [hasVideoError, setHasVideoError] = useState(false);
+
+  // Playback efficiency: play only when visible in viewport, pause when scrolled away or tab is hidden
+  useEffect(() => {
+    const video = videoRef.current;
+    const container = containerRef.current;
+    if (!video || !container) return;
+
+    let isVisible = false;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        isVisible = entry.isIntersecting;
+        if (isVisible && !document.hidden) {
+          video.play().catch(() => {});
+        } else {
+          video.pause();
+        }
+      },
+      { threshold: 0.15 }
+    );
+
+    observer.observe(container);
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        video.pause();
+      } else if (isVisible) {
+        video.play().catch(() => {});
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      observer.disconnect();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   return (
     <section id="brand-story" data-theme="dark" className="w-full bg-[#14110f] text-white py-16 sm:py-24 border-t border-neutral-800/80 relative overflow-hidden">
@@ -47,21 +89,37 @@ export const BrandStorySection: React.FC = () => {
           </div>
 
           {/* Right Visual Collage (5 cols) */}
-          <div className="lg:col-span-5 relative">
-            <div className="relative rounded-3xl overflow-hidden border border-neutral-700/80 shadow-2xl bg-neutral-900 aspect-[4/3]">
-              <img
-                src="/Images/TastyBites Burger Cafe at Dusk.png"
-                onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).src = '/Images/TastyBites Burger Café at Dusk.png';
-                }}
-                alt="TastyBites Burger Café at Dusk"
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+          <div ref={containerRef} className="lg:col-span-5 relative">
+            <div className="relative rounded-3xl overflow-hidden border border-neutral-700/80 shadow-2xl bg-neutral-900 aspect-[4/3] group">
+              {!hasVideoError ? (
+                <video
+                  ref={videoRef}
+                  src="/Videos/tasty_bites_storefront_opening.mp4"
+                  poster="/Images/TastyBites Burger Cafe at Dusk.png"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  onError={() => setHasVideoError(true)}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-102"
+                  aria-label="TastyBites Storefront Cinematic Sequence"
+                />
+              ) : (
+                <img
+                  src="/Images/TastyBites Burger Cafe at Dusk.png"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = '/Images/TastyBites Burger Café at Dusk.png';
+                  }}
+                  alt="TastyBites Burger Café at Dusk"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
 
               {/* Floating Badge */}
-              <div className="absolute bottom-4 left-4 right-4 bg-black/75 backdrop-blur-md p-3.5 rounded-2xl border border-neutral-700/70 text-left flex items-center gap-3">
+              <div className="absolute bottom-4 left-4 right-4 bg-black/75 backdrop-blur-md p-3.5 rounded-2xl border border-neutral-700/70 text-left flex items-center gap-3 pointer-events-none">
                 <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
                   <ChefHat className="w-5 h-5" />
                 </div>

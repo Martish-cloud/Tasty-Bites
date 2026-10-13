@@ -122,4 +122,29 @@
   }
 }
 
+/* Advertisement moving perimeter green light */
+@keyframes adGreenLightPerimeter {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -100;
+  }
+}
+
+.ad-moving-light {
+  stroke-dasharray: 20 80;
+  animation: adGreenLightPerimeter 4s linear infinite;
+  filter: drop-shadow(0 0 3px rgba(34, 197, 94, 0.75));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ad-moving-light {
+    animation: none !important;
+    stroke-dasharray: none !important;
+    stroke: rgba(34, 197, 94, 0.45) !important;
+    filter: none !important;
+  }
+}
+
 

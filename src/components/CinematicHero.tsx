@@ -19,8 +19,13 @@ export const CinematicHero: React.FC = () => {
 
   // In-memory cache of HTMLImageElements
   const imagesRef = useRef<Map<number, HTMLImageElement>>(new Map());
+  const loadingMapRef = useRef<Map<number, Promise<HTMLImageElement>>>(new Map());
   const rafIdRef = useRef<number | null>(null);
   const lastDrawnFrameRef = useRef<number>(-1);
+  const targetFrameRef = useRef<number>(0);
+  const currentFrameRef = useRef<number>(0);
+  const canvasSizeRef = useRef({ width: 0, height: 0, dpr: 1 });
+  const containerMetricsRef = useRef({ top: 0, height: 0, scrollable: 0 });
 
   // Check reduced motion
   useEffect(() => {
@@ -33,21 +38,31 @@ export const CinematicHero: React.FC = () => {
     }
   }, []);
 
-  // Draw image on canvas preserving aspect ratio (object-fit: cover)
-  const drawFrame = useCallback((img: HTMLImageElement) => {
+  // Cache canvas dimensions to eliminate synchronous layout thrashing during scroll
+  const updateCanvasDimensions = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const displayWidth = canvas.clientWidth;
     const displayHeight = canvas.clientHeight;
+
+    canvasSizeRef.current = { width: displayWidth, height: displayHeight, dpr };
 
     if (canvas.width !== displayWidth * dpr || canvas.height !== displayHeight * dpr) {
       canvas.width = displayWidth * dpr;
       canvas.height = displayHeight * dpr;
     }
+  }, []);
+
+  // Draw image on canvas preserving aspect ratio (object-fit: cover)
+  const drawFrame = useCallback((img: HTMLImageElement) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d', { alpha: false });
+    if (!ctx) return;
+
+    const { width: displayWidth, height: displayHeight, dpr } = canvasSizeRef.current;
+    if (displayWidth === 0 || displayHeight === 0) return;
 
     ctx.save();
     ctx.scale(dpr, dpr);
@@ -69,39 +84,69 @@ export const CinematicHero: React.FC = () => {
       offsetX = (displayWidth - drawWidth) / 2;
     }
 
-    ctx.clearRect(0, 0, displayWidth, displayHeight);
     ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
     ctx.restore();
   }, []);
 
-  // Preload frame helper
+  // Preload frame helper with asynchronous off-thread decoding
   const preloadImage = useCallback(
     (index: number): Promise<HTMLImageElement> => {
-      return new Promise((resolve) => {
-        if (imagesRef.current.has(index)) {
-          resolve(imagesRef.current.get(index)!);
-          return;
-        }
+      if (imagesRef.current.has(index)) {
+        return Promise.resolve(imagesRef.current.get(index)!);
+      }
+      if (loadingMapRef.current.has(index)) {
+        return loadingMapRef.current.get(index)!;
+      }
 
+      const promise = new Promise<HTMLImageElement>((resolve) => {
         const img = new Image();
         img.src = getFrameSrc(index);
         img.onload = () => {
-          imagesRef.current.set(index, img);
-          resolve(img);
+          if ('decode' in img) {
+            img
+              .decode()
+              .catch(() => {})
+              .finally(() => {
+                imagesRef.current.set(index, img);
+                loadingMapRef.current.delete(index);
+                resolve(img);
+              });
+          } else {
+            imagesRef.current.set(index, img);
+            loadingMapRef.current.delete(index);
+            resolve(img);
+          }
         };
         img.onerror = () => {
-          // If frame fails, resolve with fallback (first loaded image)
+          loadingMapRef.current.delete(index);
           const fallback = imagesRef.current.get(0) || img;
           resolve(fallback);
         };
       });
+
+      loadingMapRef.current.set(index, promise);
+      return promise;
     },
     []
+  );
+
+  // Priority preloading around current target frame
+  const priorityPreloadWindow = useCallback(
+    (centerIdx: number) => {
+      const start = Math.max(0, centerIdx - 2);
+      const end = Math.min(TOTAL_FRAMES - 1, centerIdx + 10);
+      for (let i = start; i <= end; i++) {
+        preloadImage(i);
+      }
+    },
+    [preloadImage]
   );
 
   // Progressive preloading strategy
   useEffect(() => {
     let isCancelled = false;
+
+    updateCanvasDimensions();
 
     // 1. Immediately load frame 0 and display it
     preloadImage(0).then((firstImg) => {
@@ -111,14 +156,13 @@ export const CinematicHero: React.FC = () => {
       }
     });
 
-    // 2. Preload nearby frames (1-20) right away
-    const initialBatch = Array.from({ length: 20 }, (_, i) => i + 1);
-    initialBatch.forEach((idx) => {
-      if (idx < TOTAL_FRAMES) preloadImage(idx);
-    });
+    // 2. Preload initial batch (1-30) right away
+    for (let i = 1; i <= Math.min(30, TOTAL_FRAMES - 1); i++) {
+      preloadImage(i);
+    }
 
-    // 3. Staged preloader for remaining frames in chunks
-    let currentChunk = 21;
+    // 3. Staged background preloader for remaining frames in idle chunks
+    let currentChunk = 31;
     const chunkSize = 15;
 
     const loadNextChunk = () => {
@@ -129,50 +173,66 @@ export const CinematicHero: React.FC = () => {
       }
       currentChunk = end;
       if (currentChunk < TOTAL_FRAMES) {
-        setTimeout(loadNextChunk, 150);
+        setTimeout(loadNextChunk, 80);
       }
     };
 
-    const timer = setTimeout(loadNextChunk, 300);
+    const timer = setTimeout(loadNextChunk, 150);
 
     return () => {
       isCancelled = true;
       clearTimeout(timer);
     };
-  }, [preloadImage, drawFrame]);
+  }, [preloadImage, drawFrame, updateCanvasDimensions]);
 
-  // Scroll mapping
+  // Section metrics calculation on resize
+  const updateMetrics = useCallback(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+    const scrollTop = window.scrollY;
+    const containerTop = rect.top + scrollTop;
+    const containerHeight = container.offsetHeight;
+    const scrollable = Math.max(1, containerHeight - window.innerHeight);
+
+    containerMetricsRef.current = {
+      top: containerTop,
+      height: containerHeight,
+      scrollable,
+    };
+    updateCanvasDimensions();
+  }, [updateCanvasDimensions]);
+
+  // Scroll mapping & smooth interpolated render loop
   useEffect(() => {
     if (isReducedMotion) return;
 
-    const handleScroll = () => {
-      if (rafIdRef.current) return;
+    updateMetrics();
 
-      rafIdRef.current = requestAnimationFrame(() => {
-        rafIdRef.current = null;
-        const container = containerRef.current;
-        if (!container) return;
+    let isLoopRunning = true;
 
-        const rect = container.getBoundingClientRect();
-        const totalScrollable = rect.height - window.innerHeight;
-        if (totalScrollable <= 0) return;
+    // Fluid RAF render loop with cinematic damping
+    const renderLoop = () => {
+      if (!isLoopRunning) return;
 
-        // Progress from 0 (top of section) to 1 (bottom of pinned section)
-        const progress = Math.max(0, Math.min(1, -rect.top / totalScrollable));
-        const targetFrameIndex = Math.min(TOTAL_FRAMES - 1, Math.floor(progress * TOTAL_FRAMES));
+      const target = targetFrameRef.current;
+      const current = currentFrameRef.current;
+      const delta = target - current;
 
-        if (targetFrameIndex !== lastDrawnFrameRef.current) {
-          // Get image from cache or find closest available loaded frame
-          let imgToDraw = imagesRef.current.get(targetFrameIndex);
+      if (Math.abs(delta) > 0.04) {
+        currentFrameRef.current += delta * 0.45;
+        const frameIndex = Math.min(TOTAL_FRAMES - 1, Math.max(0, Math.round(currentFrameRef.current)));
+
+        if (frameIndex !== lastDrawnFrameRef.current) {
+          let imgToDraw = imagesRef.current.get(frameIndex);
           if (!imgToDraw) {
-            // Find nearest loaded frame
             for (let offset = 1; offset < 20; offset++) {
-              if (imagesRef.current.has(targetFrameIndex - offset)) {
-                imgToDraw = imagesRef.current.get(targetFrameIndex - offset);
+              if (imagesRef.current.has(frameIndex - offset)) {
+                imgToDraw = imagesRef.current.get(frameIndex - offset);
                 break;
               }
-              if (imagesRef.current.has(targetFrameIndex + offset)) {
-                imgToDraw = imagesRef.current.get(targetFrameIndex + offset);
+              if (imagesRef.current.has(frameIndex + offset)) {
+                imgToDraw = imagesRef.current.get(frameIndex + offset);
                 break;
               }
             }
@@ -180,21 +240,40 @@ export const CinematicHero: React.FC = () => {
 
           if (imgToDraw) {
             drawFrame(imgToDraw);
-            lastDrawnFrameRef.current = targetFrameIndex;
+            lastDrawnFrameRef.current = frameIndex;
           }
         }
-      });
+      }
+
+      rafIdRef.current = requestAnimationFrame(renderLoop);
+    };
+
+    rafIdRef.current = requestAnimationFrame(renderLoop);
+
+    const handleScroll = () => {
+      const { top, scrollable } = containerMetricsRef.current;
+      if (scrollable <= 0) return;
+
+      const scrollY = window.scrollY;
+      const progress = Math.max(0, Math.min(1, (scrollY - top) / scrollable));
+      const targetFrame = Math.min(TOTAL_FRAMES - 1, Math.floor(progress * TOTAL_FRAMES));
+
+      if (targetFrame !== targetFrameRef.current) {
+        targetFrameRef.current = targetFrame;
+        priorityPreloadWindow(targetFrame);
+      }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', handleScroll, { passive: true });
+    window.addEventListener('resize', updateMetrics, { passive: true });
 
     return () => {
+      isLoopRunning = false;
       window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
+      window.removeEventListener('resize', updateMetrics);
       if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
     };
-  }, [drawFrame, isReducedMotion]);
+  }, [drawFrame, isReducedMotion, priorityPreloadWindow, updateMetrics]);
 
   const handleOrderOnline = () => {
     const el = document.getElementById('popular-dishes');

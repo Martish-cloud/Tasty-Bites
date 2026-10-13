@@ -99,23 +99,58 @@ export const TastyBitesAdSection: React.FC = () => {
     <section
       id="tasty-bites-advertisement"
       aria-label="Tasty Bites Advertisement"
-      className="w-full bg-[#f8f9fa] py-10 sm:py-14 border-t border-neutral-200"
+      className="w-full bg-[#f8f9fa] py-6 sm:py-8 border-t border-neutral-200"
     >
-      <div className="max-w-[440px] mx-auto px-4">
-        {/* Subtle section label */}
-        <div className="flex items-center justify-between mb-3 text-left">
+      <div className="flex flex-col items-center mx-auto px-4">
+        {/* Subtle section label matching video width to eliminate side gaps */}
+        <div className="w-full max-w-[310px] sm:max-w-[330px] flex items-center justify-between mb-2 text-left">
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-neutral-200/70 text-neutral-600 font-bold text-[10px] uppercase tracking-wider">
             <Sparkles className="w-3 h-3 text-amber-600" />
             <span>Featured Brand Cinema</span>
           </div>
 
-          <span className="text-[10.5px] text-neutral-400 font-medium">
+          <span className="text-[10px] sm:text-[10.5px] text-neutral-400 font-medium">
             Tasty Bites Commercial Showcase
           </span>
         </div>
 
-        {/* Video Container Box - Sized to video's natural 9:16 aspect ratio with refined brand-colored frame */}
-        <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-black shadow-2xl border-2 border-amber-500/70 aspect-[9/16] w-full group">
+        {/* Compact Video Container Box - Sized to natural 9:16 aspect ratio fitting 100% desktop zoom viewport */}
+        <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-black shadow-2xl aspect-[9/16] w-full max-w-[310px] sm:max-w-[330px] max-h-[min(520px,68vh)] group mx-auto">
+          {/* Moving 2px green light around the video frame perimeter */}
+          <svg
+            className="absolute inset-0 w-full h-full pointer-events-none z-10 overflow-visible"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            {/* Subtle static border track */}
+            <rect
+              x="1"
+              y="1"
+              width="calc(100% - 2px)"
+              height="calc(100% - 2px)"
+              rx="22"
+              ry="22"
+              fill="none"
+              stroke="rgba(34, 197, 94, 0.25)"
+              strokeWidth="1.5"
+            />
+            {/* Continuous 2px emerald green light moving along perimeter */}
+            <rect
+              x="1"
+              y="1"
+              width="calc(100% - 2px)"
+              height="calc(100% - 2px)"
+              rx="22"
+              ry="22"
+              pathLength="100"
+              fill="none"
+              stroke="#22c55e"
+              strokeWidth="2"
+              strokeLinecap="round"
+              className="ad-moving-light"
+            />
+          </svg>
+
           <video
             ref={videoRef}
             src="/Videos/Tasty Bites.mp4"
