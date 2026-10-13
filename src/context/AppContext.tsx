@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import type { Product, CartItem, CategoryId, PromoCode, UserProfile } from '../types';
 
-import { PROMO_CODES } from '../data/products';
+import { PROMO_CODES, PRODUCTS } from '../data/products';
 
 // Centralized Tax Configuration: GST 18%
 export const TAX_CONFIG = {
@@ -42,6 +42,7 @@ interface AppContextType {
   currentRoute: 'home' | 'reviews' | 'combo-offers';
   setCurrentRoute: (route: 'home' | 'reviews' | 'combo-offers') => void;
   navigateTo: (route: 'home' | 'reviews' | 'combo-offers') => void;
+  navigateBackToHome: () => void;
   isLocationModalOpen: boolean;
   isOffersModalOpen: boolean;
   isAuthModalOpen: boolean;
@@ -133,7 +134,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Modals & Drawers
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
-  const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
+  const [isMenuModalOpen, setIsMenuModalOpenState] = useState(() => {
+    return typeof window !== 'undefined' && window.location.hash.toLowerCase() === '#menu';
+  });
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [isTrackOrderOpen, setIsTrackOrderOpen] = useState(false);
   const [trackingOrderNumber, setTrackingOrderNumber] = useState<string | null>(null);
@@ -141,7 +144,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [isOffersModalOpen, setIsOffersModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedProduct, setSelectedProductState] = useState<Product | null>(() => {
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash.toLowerCase();
+      if (hash.startsWith('#dish-')) {
+        const dishId = hash.replace('#dish-', '');
+        return PRODUCTS.find((p) => p.id === dishId) || null;
+      }
+    }
+    return null;
+  });
 
   const [currentRoute, setCurrentRoute] = useState<'home' | 'reviews' | 'combo-offers'>(() => {
     const path = window.location.pathname.toLowerCase();
@@ -151,19 +163,207 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return 'home';
   });
 
+  const isHandlingPopstateRef = useRef(false);
+  const isProgrammaticScrollRef = useRef(false);
+  const currentRouteRef = useRef(currentRoute);
+
+  useEffect(() => {
+    currentRouteRef.current = currentRoute;
+  }, [currentRoute]);
+
+  // Set manual scroll restoration to control exact scroll positions
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+    if (!window.history.state?.key) {
+      const initialKey = `tb_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+      window.history.replaceState(
+        {
+          ...window.history.state,
+          key: initialKey,
+          route: currentRouteRef.current,
+          scrollY: window.scrollY,
+        },
+        ''
+      );
+    }
+  }, []);
+
+  // Track scroll position per history entry and per route
+  useEffect(() => {
+    let ticking = false;
+    const handleScroll = () => {
+      if (isProgrammaticScrollRef.current) return;
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentY = window.scrollY;
+          const currentKey = window.history.state?.key || `tb_${currentRouteRef.current}`;
+          try {
+            window.history.replaceState(
+              {
+                ...window.history.state,
+                key: currentKey,
+                scrollY: currentY,
+                route: currentRouteRef.current,
+              },
+              ''
+            );
+            sessionStorage.setItem('tb_scroll_' + currentKey, String(currentY));
+            sessionStorage.setItem('tb_scroll_route_' + currentRouteRef.current, String(currentY));
+          } catch {
+            // Ignore potential quota errors
+          }
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Frame-aware scroll restoration
+  const restoreScrollPosition = useCallback((targetY: number) => {
+    if (targetY <= 0) {
+      window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+      return;
+    }
+
+    isProgrammaticScrollRef.current = true;
+    let attempts = 0;
+    const maxAttempts = 30;
+
+    const step = () => {
+      attempts++;
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      if (maxScroll >= targetY || attempts >= maxAttempts) {
+        window.scrollTo({
+          top: Math.min(targetY, Math.max(0, maxScroll)),
+          behavior: 'instant' as ScrollBehavior,
+        });
+        requestAnimationFrame(() => {
+          const finalMax = document.documentElement.scrollHeight - window.innerHeight;
+          window.scrollTo({
+            top: Math.min(targetY, Math.max(0, finalMax)),
+            behavior: 'instant' as ScrollBehavior,
+          });
+          setTimeout(() => {
+            isProgrammaticScrollRef.current = false;
+          }, 50);
+        });
+      } else {
+        requestAnimationFrame(step);
+      }
+    };
+
+    requestAnimationFrame(step);
+  }, []);
+
   const navigateTo = (route: 'home' | 'reviews' | 'combo-offers') => {
+    // 1. Save scroll position of current page before leaving
+    const currentY = window.scrollY;
+    const currentKey = window.history.state?.key || `tb_${currentRoute}_${Date.now()}`;
+    try {
+      window.history.replaceState(
+        {
+          ...window.history.state,
+          key: currentKey,
+          scrollY: currentY,
+          route: currentRoute,
+        },
+        ''
+      );
+      sessionStorage.setItem('tb_scroll_' + currentKey, String(currentY));
+      sessionStorage.setItem('tb_scroll_route_' + currentRoute, String(currentY));
+    } catch {
+      // Ignore
+    }
+
+    // 2. Push state for target route
+    const nextKey = `tb_${route}_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+    const targetPath =
+      route === 'reviews'
+        ? '/reviews'
+        : route === 'combo-offers'
+        ? '/combo-offers'
+        : '/';
+
+    window.history.pushState(
+      { key: nextKey, route, scrollY: 0 },
+      '',
+      targetPath
+    );
+
+    // 3. Update route and document title
     setCurrentRoute(route);
     if (route === 'reviews') {
-      window.history.pushState(null, '', '/reviews');
       document.title = 'Customer Reviews & Ratings | TastyBites';
     } else if (route === 'combo-offers') {
-      window.history.pushState(null, '', '/combo-offers');
       document.title = 'Combo Offers | TastyBites';
     } else {
-      window.history.pushState(null, '', '/');
       document.title = 'TastyBites';
     }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // 4. Reset scroll for forward navigation to a new page
+    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+  };
+
+  const navigateBackToHome = () => {
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      navigateTo('home');
+    }
+  };
+
+  // Synchronized Full Menu Modal with browser history
+  const setIsMenuModalOpen = (open: boolean) => {
+    if (open) {
+      if (!isMenuModalOpen) {
+        const currentY = window.scrollY;
+        const nextKey = `tb_modal_menu_${Date.now()}`;
+        window.history.pushState(
+          { key: nextKey, modal: 'menu', route: currentRoute, scrollY: currentY },
+          '',
+          '#menu'
+        );
+        setIsMenuModalOpenState(true);
+      }
+    } else {
+      if (!isHandlingPopstateRef.current && (window.location.hash.toLowerCase() === '#menu' || window.history.state?.modal === 'menu')) {
+        window.history.back();
+      } else {
+        setIsMenuModalOpenState(false);
+      }
+    }
+  };
+
+  // Synchronized Product Detail Modal with browser history
+  const setSelectedProduct = (product: Product | null) => {
+    if (product) {
+      const currentY = window.scrollY;
+      const nextKey = `tb_dish_${product.id}_${Date.now()}`;
+      window.history.pushState(
+        {
+          key: nextKey,
+          modal: 'product',
+          productId: product.id,
+          route: currentRoute,
+          scrollY: currentY,
+        },
+        '',
+        `#dish-${product.id}`
+      );
+      setSelectedProductState(product);
+    } else {
+      if (!isHandlingPopstateRef.current && (window.location.hash.toLowerCase().startsWith('#dish-') || window.history.state?.modal === 'product')) {
+        window.history.back();
+      } else {
+        setSelectedProductState(null);
+      }
+    }
   };
 
   const openOrderTracking = (orderNumber?: string) => {
@@ -175,19 +375,34 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // URL Pathname and Hash Listener for routing & deep-linking
   useEffect(() => {
-    const handleLocationChange = () => {
+    const handleLocationChange = (e?: PopStateEvent) => {
+      isHandlingPopstateRef.current = true;
       const path = window.location.pathname.toLowerCase();
       const hash = window.location.hash.toLowerCase();
 
+      let nextRoute: 'home' | 'reviews' | 'combo-offers' = 'home';
       if (path.includes('reviews') || hash.includes('reviews')) {
-        setCurrentRoute('reviews');
-        document.title = 'Customer Reviews & Ratings | TastyBites';
+        nextRoute = 'reviews';
       } else if (path.includes('combo-offers') || hash.includes('combo-offers') || hash.includes('combos')) {
-        setCurrentRoute('combo-offers');
-        document.title = 'Combo Offers | TastyBites';
+        nextRoute = 'combo-offers';
       } else {
-        setCurrentRoute('home');
-        document.title = 'TastyBites';
+        nextRoute = 'home';
+      }
+
+      // Sync menu modal state
+      const isMenu = hash === '#menu' || e?.state?.modal === 'menu';
+      setIsMenuModalOpenState(isMenu);
+
+      // Sync product detail modal state
+      if (hash.startsWith('#dish-')) {
+        const dishId = hash.replace('#dish-', '');
+        const found = PRODUCTS.find((p) => p.id === dishId);
+        if (found) setSelectedProductState(found);
+      } else if (e?.state?.modal === 'product' && e?.state?.productId) {
+        const found = PRODUCTS.find((p) => p.id === e.state.productId);
+        if (found) setSelectedProductState(found);
+      } else {
+        setSelectedProductState(null);
       }
 
       if (hash === '#staff-portal') {
@@ -200,16 +415,53 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
         setIsTrackOrderOpen(true);
       }
+
+      const routeChanged = nextRoute !== currentRouteRef.current;
+      setCurrentRoute(nextRoute);
+      if (nextRoute === 'reviews') {
+        document.title = 'Customer Reviews & Ratings | TastyBites';
+      } else if (nextRoute === 'combo-offers') {
+        document.title = 'Combo Offers | TastyBites';
+      } else {
+        document.title = 'TastyBites';
+      }
+
+      // Scroll restoration
+      const stateKey = e?.state?.key || window.history.state?.key;
+      let targetScrollY: number | null = typeof e?.state?.scrollY === 'number'
+        ? e.state.scrollY
+        : typeof window.history.state?.scrollY === 'number'
+        ? window.history.state.scrollY
+        : null;
+
+      if (targetScrollY === null && stateKey) {
+        const stored = sessionStorage.getItem('tb_scroll_' + stateKey);
+        if (stored !== null) targetScrollY = Number(stored);
+      }
+      if (targetScrollY === null && nextRoute === 'home') {
+        const storedRoute = sessionStorage.getItem('tb_scroll_route_home');
+        if (storedRoute !== null) targetScrollY = Number(storedRoute);
+      }
+
+      if (typeof targetScrollY === 'number' && targetScrollY > 0) {
+        restoreScrollPosition(targetScrollY);
+      } else if (routeChanged && targetScrollY === 0) {
+        window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+      }
+
+      setTimeout(() => {
+        isHandlingPopstateRef.current = false;
+      }, 50);
     };
 
     handleLocationChange();
     window.addEventListener('popstate', handleLocationChange);
-    window.addEventListener('hashchange', handleLocationChange);
+    window.addEventListener('hashchange', handleLocationChange as any);
     return () => {
       window.removeEventListener('popstate', handleLocationChange);
-      window.removeEventListener('hashchange', handleLocationChange);
+      window.removeEventListener('hashchange', handleLocationChange as any);
     };
-  }, []);
+  }, [restoreScrollPosition]);
 
   // Sync to LocalStorage
   useEffect(() => {
@@ -428,6 +680,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         currentRoute,
         setCurrentRoute,
         navigateTo,
+        navigateBackToHome,
         isLocationModalOpen,
         isOffersModalOpen,
         isAuthModalOpen,

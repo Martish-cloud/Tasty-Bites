@@ -76,12 +76,36 @@ export const Section1VideoShowcase: React.FC = () => {
   const { addToCart, updateQuantity, showToast, setIsVideoModalOpen, cart } = useApp();
   const [selectedVideo, setSelectedVideo] = useState<VideoItem>(SECTION_1_VIDEOS[0]);
   const [isPlaying, setIsPlaying] = useState(true);
-  const [isMuted, setIsMuted] = useState(true);
+  // Shared audio state across all 4 showcase videos (26% volume)
+  const [isMuted, setIsMuted] = useState<boolean>(true);
+  const userMutedRef = useRef<boolean>(false);
+
+  const TARGET_VOLUME = 0.26;
 
   const mainVideoRef = useRef<HTMLVideoElement>(null);
   const previewVideoRef = useRef<HTMLVideoElement>(null);
   const isSyncingRef = useRef<boolean>(false);
   const sectionRef = useRef<HTMLElement>(null);
+
+  // Initialize volume to 26% and attempt audible playback if browser permits
+  useEffect(() => {
+    const main = mainVideoRef.current;
+    if (!main) return;
+    main.volume = TARGET_VOLUME;
+
+    // Try audible playback initially if browser permits
+    main.muted = false;
+    main.play()
+      .then(() => {
+        setIsMuted(false);
+      })
+      .catch(() => {
+        // Autoplay policy prevented audible playback without user gesture; fallback to muted
+        main.muted = true;
+        setIsMuted(true);
+        main.play().catch(() => {});
+      });
+  }, []);
 
   // Synchronize preview player with master player when selected video or play state changes
   useEffect(() => {
@@ -182,30 +206,73 @@ export const Section1VideoShowcase: React.FC = () => {
   const toggleMute = () => {
     const video = mainVideoRef.current;
     if (!video) return;
-    video.muted = !video.muted;
-    setIsMuted(video.muted);
+
+    if (isMuted) {
+      // User explicitly unmutes: apply to shared audio state at 26%
+      userMutedRef.current = false;
+      video.muted = false;
+      video.volume = TARGET_VOLUME;
+      setIsMuted(false);
+      video.play().catch(() => {});
+    } else {
+      // User explicitly mutes: apply to shared audio state
+      userMutedRef.current = true;
+      video.muted = true;
+      setIsMuted(true);
+    }
   };
 
   const handleSelectVideo = (item: VideoItem) => {
-    if (selectedVideo.id === item.id) return;
-    setSelectedVideo(item);
+    const isSameVideo = selectedVideo.id === item.id;
+    if (!isSameVideo) {
+      setSelectedVideo(item);
+    }
     setIsPlaying(true);
 
-    if (mainVideoRef.current) {
-      mainVideoRef.current.pause();
-      mainVideoRef.current.currentTime = 0;
-      mainVideoRef.current.poster = item.poster;
-      mainVideoRef.current.src = item.src;
-      mainVideoRef.current.load();
-      mainVideoRef.current.play().catch(() => {});
+    const main = mainVideoRef.current;
+    if (main) {
+      if (!isSameVideo) {
+        main.pause();
+        main.currentTime = 0;
+        main.poster = item.poster;
+        main.src = item.src;
+        main.load();
+      }
+      main.volume = TARGET_VOLUME;
+
+      if (userMutedRef.current) {
+        // Shared mute state is active: remain muted
+        main.muted = true;
+        setIsMuted(true);
+        main.play().catch(() => {});
+      } else {
+        // Shared state is unmuted: card selection gesture enables 26% audio
+        main.muted = false;
+        main.play()
+          .then(() => {
+            setIsMuted(false);
+          })
+          .catch(() => {
+            // Graceful fallback if browser restricts
+            main.muted = true;
+            setIsMuted(true);
+            main.play().catch(() => {});
+          });
+      }
     }
-    if (previewVideoRef.current) {
-      previewVideoRef.current.pause();
-      previewVideoRef.current.currentTime = 0;
-      previewVideoRef.current.poster = item.poster;
-      previewVideoRef.current.src = item.src;
-      previewVideoRef.current.load();
-      previewVideoRef.current.play().catch(() => {});
+
+    const preview = previewVideoRef.current;
+    if (preview) {
+      if (!isSameVideo) {
+        preview.pause();
+        preview.currentTime = 0;
+        preview.poster = item.poster;
+        preview.src = item.src;
+        preview.load();
+      }
+      preview.muted = true;
+      preview.volume = 0;
+      preview.play().catch(() => {});
     }
   };
 
@@ -355,7 +422,11 @@ export const Section1VideoShowcase: React.FC = () => {
                   </button>
 
                   <button
-                    onClick={() => setIsVideoModalOpen(true)}
+                    onClick={() => {
+                      mainVideoRef.current?.pause();
+                      setIsPlaying(false);
+                      setIsVideoModalOpen(true);
+                    }}
                     className="w-9 h-9 rounded-full bg-black/70 hover:bg-neutral-800 backdrop-blur-md border border-neutral-700 flex items-center justify-center transition cursor-pointer text-white"
                     title="Expand Fullscreen Modal"
                   >

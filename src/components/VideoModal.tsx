@@ -8,6 +8,13 @@ export const VideoModal: React.FC = () => {
   const { isVideoModalOpen, setIsVideoModalOpen, addToCart } = useApp();
   const [activeVideo, setActiveVideo] = useState<VideoItem>(SECTION_1_VIDEOS[0]);
   const [isMuted, setIsMuted] = useState(false);
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+
+  React.useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.volume = 0.26;
+    }
+  }, [activeVideo]);
 
   if (!isVideoModalOpen) return null;
 
@@ -90,6 +97,7 @@ export const VideoModal: React.FC = () => {
         {/* Video Player */}
         <div className="relative aspect-video bg-black flex items-center justify-center overflow-hidden flex-1">
           <video
+            ref={videoRef}
             key={activeVideo.src}
             autoPlay
             loop

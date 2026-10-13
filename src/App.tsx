@@ -30,7 +30,7 @@ import { AllReviewsPage } from './pages/AllReviewsPage';
 import { ComboOffersPage } from './pages/ComboOffersPage';
 
 export function AppContent() {
-  const { isAdminOpen, setIsAdminOpen, currentRoute, navigateTo } = useApp();
+  const { isAdminOpen, setIsAdminOpen, currentRoute, navigateTo, navigateBackToHome } = useApp();
 
   return (
     <div className="min-h-screen bg-[#f8f9fa] text-neutral-800 flex flex-col font-sans selection:bg-amber-500 selection:text-white relative">
@@ -43,9 +43,9 @@ export function AppContent() {
       {/* 3. Main Route Views */}
       <main className="flex-1">
         {currentRoute === 'reviews' ? (
-          <AllReviewsPage onBackToHome={() => navigateTo('home')} />
+          <AllReviewsPage onBackToHome={navigateBackToHome} />
         ) : currentRoute === 'combo-offers' ? (
-          <ComboOffersPage onBackToHome={() => navigateTo('home')} />
+          <ComboOffersPage onBackToHome={navigateBackToHome} />
         ) : (
           <>
             {/* Cinematic 160-Frame Hero Sequence */}

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Volume2, VolumeX, Sparkles } from 'lucide-react';
+import { Volume2, VolumeX, Sparkles, ChefHat } from 'lucide-react';
 
 const AD_SESSION_KEY = 'tastybites_ad_dismissed_session';
 
@@ -64,13 +64,12 @@ export const TastyBitesAdSection: React.FC = () => {
     setIsDismissed(true);
   };
 
-  // Toggle audio with reduced volume
+  // Toggle audio with internal 26% volume setting
   const toggleAudio = () => {
     if (!videoRef.current) return;
     if (isMuted) {
-      // Unmute with safe reduced volume (0.3)
+      videoRef.current.volume = 0.26;
       videoRef.current.muted = false;
-      videoRef.current.volume = 0.3;
       setIsMuted(false);
     } else {
       videoRef.current.muted = true;
@@ -102,7 +101,7 @@ export const TastyBitesAdSection: React.FC = () => {
       aria-label="Tasty Bites Advertisement"
       className="w-full bg-[#f8f9fa] py-10 sm:py-14 border-t border-neutral-200"
     >
-      <div className="max-w-4xl mx-auto px-4 sm:px-6">
+      <div className="max-w-[440px] mx-auto px-4">
         {/* Subtle section label */}
         <div className="flex items-center justify-between mb-3 text-left">
           <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-neutral-200/70 text-neutral-600 font-bold text-[10px] uppercase tracking-wider">
@@ -115,29 +114,29 @@ export const TastyBitesAdSection: React.FC = () => {
           </span>
         </div>
 
-        {/* Video Container Box */}
-        <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-[#0c0b0a] shadow-xl border border-neutral-800/60 aspect-video group">
+        {/* Video Container Box - Sized to video's natural 9:16 aspect ratio with refined brand-colored frame */}
+        <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-black shadow-2xl border-2 border-amber-500/70 aspect-[9/16] w-full group">
           <video
             ref={videoRef}
             src="/Videos/Tasty Bites.mp4"
             autoPlay
-            muted
+            muted={isMuted}
             playsInline
             loop
             onTimeUpdate={handleTimeUpdate}
             onError={() => setHasError(true)}
-            className="w-full h-full object-cover sm:object-contain bg-black"
+            className="w-full h-full object-contain bg-black"
             aria-label="Tasty Bites Brand Cinema Advertisement"
           />
 
           {/* Top Control Bar Over Video */}
           <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-auto z-20">
-            {/* Audio Toggle (Reduced Volume) */}
+            {/* Audio Toggle (Internal 26% Volume, NO percentage in label) */}
             <button
               type="button"
               onClick={toggleAudio}
-              className="px-2.5 py-1.5 rounded-xl bg-black/60 hover:bg-black/80 text-white/90 text-xs backdrop-blur-md flex items-center gap-1.5 border border-white/10 transition cursor-pointer"
-              aria-label={isMuted ? 'Unmute video (reduced volume)' : 'Mute video'}
+              className="px-2.5 py-1.5 rounded-xl bg-black/70 hover:bg-black/90 text-white/90 text-xs backdrop-blur-md flex items-center gap-1.5 border border-white/10 transition cursor-pointer"
+              aria-label={isMuted ? 'Unmute advertisement audio' : 'Mute advertisement audio'}
             >
               {isMuted ? (
                 <>
@@ -147,7 +146,7 @@ export const TastyBitesAdSection: React.FC = () => {
               ) : (
                 <>
                   <Volume2 className="w-3.5 h-3.5 text-amber-400" />
-                  <span className="text-[10.5px] font-medium hidden sm:inline">Sound On (30%)</span>
+                  <span className="text-[10.5px] font-medium hidden sm:inline">Sound On</span>
                 </>
               )}
             </button>
@@ -187,9 +186,18 @@ export const TastyBitesAdSection: React.FC = () => {
             </div>
           </div>
 
-          {/* Bottom subtle brand watermark badge */}
-          <div className="absolute bottom-3 left-3 px-2 py-0.5 rounded bg-black/50 text-[10px] text-white/70 backdrop-blur-xs pointer-events-none">
-            Tasty Bites © Official Ad
+          {/* Tasty Bites Official Branded Badge concealing the lower-right Google Flow/Gemini watermark */}
+          <div
+            className="absolute z-15 pointer-events-none select-none flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-950/90 backdrop-blur-md border border-amber-500/50 shadow-lg shadow-black/80"
+            style={{ right: '12px', bottom: '8.8%' }}
+            title="TastyBites Brand Cinema"
+          >
+            <div className="w-4 h-4 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white border border-amber-400/70 shadow-sm shrink-0">
+              <ChefHat className="w-2.5 h-2.5" />
+            </div>
+            <span className="font-extrabold text-[10px] tracking-tight text-white whitespace-nowrap">
+              Tasty<span className="text-amber-400">Bites</span>
+            </span>
           </div>
         </div>
       </div>
